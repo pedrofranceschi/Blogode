@@ -1,0 +1,7 @@
+<form method="post" action="/admin/posts/update" id="createRoomForm">
+	<h1>Edit Post</h1>
+ 	Title: <input type="text" name="title" size="62" value="<%= unescape(post.title) %>"></input><br/>
+	Body:<br/> <textarea name="body" rows="20" cols="50"><%= unescape(post.body) %></textarea><br/><br/>
+	<input type="hidden" name="id" value="<%= post.id %>"/><br/>
+ 	<input type="submit" value="Update" />
+</form>
