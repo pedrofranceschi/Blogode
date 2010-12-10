@@ -1,70 +1,40 @@
 <script src="http://code.jquery.com/jquery-1.4.3.min.js"></script>
-<script src="/post_editor.js"/>
+<script src="/tiny_mce/tiny_mce.js"/>
 
-<body onLoad="def();">
+<script type="text/javascript">
+	tinyMCE.init({
+		// General options
+		mode : "textareas",
+		theme : "advanced",
+		plugins : "pagebreak,style,layer,table,save,advhr,advimage,advlink,emotions,iespell,inlinepopups,insertdatetime,preview,media,searchreplace,print,contextmenu,paste,directionality,fullscreen,noneditable,visualchars,nonbreaking,xhtmlxtras,template,wordcount,advlist,autosave",
+		// Theme options
+		theme_advanced_buttons1 : "bold,italic,underline,strikethrough,|,justifyleft,justifycenter,justifyright,justifyfull,styleselect,formatselect,fontselect,fontsizeselect",
+		theme_advanced_buttons2 : "cut,copy,paste,pastetext,pasteword,|,search,replace,|,bullist,numlist,|,outdent,indent,blockquote,|,undo,redo,|,link,unlink,anchor,image,cleanup,help,code,|,insertdate,inserttime,preview,|,forecolor,backcolor",
+		theme_advanced_buttons3 : "tablecontrols,|,hr,removeformat,visualaid,|,sub,sup,|,charmap,emotions,iespell,media,advhr,|,print,|,ltr,rtl,|,fullscreen",
+		theme_advanced_buttons4 : "insertlayer,moveforward,movebackward,absolute,|,styleprops,|,cite,abbr,acronym,del,ins,attribs,|,visualchars,nonbreaking,template,pagebreak,restoredraft",
+		theme_advanced_toolbar_location : "top",
+		theme_advanced_toolbar_align : "left",
+		theme_advanced_statusbar_location : "bottom",
+		theme_advanced_resizing : true,
+		style_formats : [
+			{title : 'Bold text', inline : 'b'},
+			{title : 'Red text', inline : 'span', styles : {color : '#ff0000'}},
+			{title : 'Red header', block : 'h1', styles : {color : '#ff0000'}},
+			{title : 'Example 1', inline : 'span', classes : 'example1'},
+			{title : 'Example 2', inline : 'span', classes : 'example2'},
+			{title : 'Table styles'},
+			{title : 'Table row 1', selector : 'tr', classes : 'tablerow1'}
+		],
+	});
+</script>
 
 <form method="post" action="/admin/posts/save" id="createRoomForm">
 	<h1>New Post</h1>
  	Title: <input type="text" name="title" size="62"/><br/><br/>
-	Body:<br/><br/>	
+	Body:<br/><br/>
 	
-	<input type="button" id="bold" style="height:21px; width:21px; font-weight:bold;" value="B" onClick="fontEdit('bold')" />
-	<input type="button" id="italic" style="height:21px; width:21px; font-style:italic;" value="I" onClick="fontEdit('italic')" />
-	<input type="button" id="underline" style="height:21px; width:21px; text-decoration:underline;" value="U" onClick="fontEdit('underline')" /> | 
-	<input type="button" style="height:21px; width:21px;"value="L" onClick="fontEdit('justifyleft')" title="align left" />
-	<input type="button" style="height:21px; width:21px;"value="C" onClick="fontEdit('justifycenter')" title="center" />
-	<input type="button" style="height:21px; width:21px;"value="R" onClick="fontEdit('justifyright')" title="align right" /> | 
-	<select id="size" onChange="fontEdit('fontsize',this[this.selectedIndex].value)">
-	<option value="1">1</option>
-	<option value="2">2</option>
-	<option value="3">3</option>
-	<option value="4">4</option>
-	<option value="5">5</option>
-	</select>
-	<select id="color" onChange="fontEdit('ForeColor',this[this.selectedIndex].value)">
-	<option value="black">Black</option>
-	<option style="color:red;" value="red">Red</option>
-	<option style="color:blue;" value="blue">Blue</option>
-	<option style="color:green;" value="green">Green</option>
-	<option style="color:pink;" value="pink">Pink</option>
-	<option style="color:yellow;" value="yellow">Yellow</option>
-	</select> |
-	<input type="button" style="height:21px; width:21px;"value="1" onClick="fontEdit('insertorderedlist')" title="Numbered List" />
-	<input type="button" style="height:21px; width:21px;"value="?" onClick="fontEdit('insertunorderedlist')" title="Bullets List" />
-	<input type="button" style="height:21px; width:21px;"value="?" onClick="fontEdit('outdent')" title="Outdent" />
-	<input type="button" style="height:21px; width:21px;"value="?" onClick="fontEdit('indent')" title="Indent" />
-	</div>
-	<br/>
-	<iframe id="textEditor" style="width:500px; height:170px;">
-	</iframe>
-	</center>
-	<script type="text/javascript">
-	<!--
-	textEditor.document.designMode="on";
-	textEditor.document.open();
-	textEditor.document.write('<head><style type="text/css">body{ font-family:arial; font-size:13px;}</style></head>');
-	textEditor.document.close();
-	function def()
-	{
-	document.getElementById("fonts").selectedIndex=0;
-	document.getElementById("size").selectedIndex=1;
-	document.getElementById("color").selectedIndex=0;
-	}
-	function fontEdit(x,y)
-	{
-	textEditor.document.execCommand(x,"",y);
-	textEditor.focus();
-	}
-	-->
-	
-	function submitForm() {
-		var editorContent = window.frames['textEditor'].document.body.innerHTML;
-		$('input[name=body]').val(editorContent);
-		$('form').submit();
-	}
-	</script>
-	
-	<input type="hidden" name="body" value=""/><br/>
+	<textarea id="elm1" name="body" rows="15" cols="80" style="550px; height:300px;">
+	</textarea>
 		
 	<br/><br/>
  	<input type="submit" id="submitButton" value="Submit" onClick="submitForm();"/>

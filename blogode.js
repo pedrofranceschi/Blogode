@@ -109,6 +109,8 @@ app.get('/admin/posts/:id', function(req, res) {
 });
 
 app.post('/admin/posts/save', function(req, res) {
+    // saves a post
+    
     if(!req.session.username)  {
         return res.redirect("/admin/login")
     }
@@ -122,6 +124,8 @@ app.post('/admin/posts/save', function(req, res) {
 });
 
 app.post('/admin/posts/update', function(req, res) {
+    // updates a post
+    
     if(!req.session.username)  {
         return res.redirect("/admin/login")
     }
@@ -134,6 +138,8 @@ app.post('/admin/posts/update', function(req, res) {
 });
 
 app.get('/admin/posts/destroy/:id', function(req, res) {
+    // destroys a post
+    
     if(!req.session.username)  {
         return res.redirect("/admin/login")
     }
