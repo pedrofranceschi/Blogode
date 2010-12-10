@@ -112,6 +112,7 @@ app.post('/admin/posts/save', function(req, res) {
     if(!req.session.username)  {
         return res.redirect("/admin/login")
     }
+    sys.puts('saving: ' + sys.inspect(req.param('textEditor')))
     if(!req.param('title') || !req.param('body')) {
         return res.redirect("/admin/posts/new");
     }
