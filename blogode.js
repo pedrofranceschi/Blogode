@@ -22,8 +22,18 @@ app.get("/", function(req, res){
     // return posts list
     
     posts.getPosts(10, function (posts){
-        res.render('index', {
+        res.render('posts/index', {
             locals: { 'posts': posts }
+        });
+    });
+});
+
+app.get("/:id", function(req, res){
+    // return an specific post (by ID)
+    
+    posts.getPost(req.param('id'), function(post) {
+        res.render('posts/show', {
+            locals: { 'post': post }
         });
     });
 });
