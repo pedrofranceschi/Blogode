@@ -17,6 +17,7 @@ app.configure(function() {
 
 var posts = require('./lib/posts');
 var users = require('./lib/users');
+var comments = require('./lib/comments');
 
 app.get("/", function(req, res){
     // return posts list
@@ -32,8 +33,10 @@ app.get("/:id", function(req, res){
     // return an specific post (by ID)
     
     posts.getPost(req.param('id'), function(post) {
-        res.render('posts/show', {
-            locals: { 'post': post }
+        comments.getCommentsOfPost(req.param('id'), function(comments){
+            res.render('posts/show', {
+                locals: { 'post': post, 'comments': comments }
+            });
         });
     });
 });

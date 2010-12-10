@@ -1,7 +1,9 @@
 <h1>Manage posts</h1>
 
-<% for (var i=0; i < posts.length; i++) { %>
-	<b><%= unescape(posts[i].title) %></b> (by <%= posts[i].user_name %>) - <a href="/admin/posts/<%= posts[i].id %>">Edit</a> - <a href="/admin/posts/destroy/<%= posts[i].id %>">Delete</a><br/><br/>
+<% if(posts != undefined) { %>
+	<% for (var i=0; i < posts.length; i++) { %>
+		<b><%= unescape(posts[i].title) %></b> (by <%= posts[i].user_name %>) - <a href="/admin/posts/<%= posts[i].id %>">Edit</a> - <a href="/admin/posts/destroy/<%= posts[i].id %>">Delete</a><br/><br/>
+	<% } %>
 <% } %>
 
 <a href="/admin/posts/new">New post</a>

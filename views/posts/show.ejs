@@ -1,3 +1,10 @@
 <h1><%= unescape(post.title) %></h1>
 <p>by <%= post.user_name %></p>
 <p><%- unescape(post.body) %></p>
+
+<h1>Comments</h1>
+
+<% for (var i=0; i < comments.length; i++) { %>
+	<h4><%= comments[i].author_name %></h4>
+	<p><%= comments[i].comment %></p>
+<% } %>
