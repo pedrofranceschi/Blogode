@@ -36,6 +36,15 @@ app.get("/", function(req, res){
     });
 });
 
+app.get("/feed", function(req, res){
+    // return posts in XML format
+    
+    posts.getPosts(10, function (postsResult){
+        posts.generatePostsXML(postsResult, function(xmlString) {
+            return res.send(xmlString); 
+        });
+    });
+});
 
 function adminLoginFilter(req, res, next) {
     // verifies if user is an admin

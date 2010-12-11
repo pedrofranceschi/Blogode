@@ -18,6 +18,7 @@ TODO
 ----
 * Refactor with Tests
 * Add other databases
+* Implement RSS feed generation
 * Finish implementing comments
 * Implement layout management (user view and admin view)
 * Implement plugins API
