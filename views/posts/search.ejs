@@ -1,0 +1,13 @@
+<h1>Search results</h1>
+
+<% if(posts != undefined) { %>
+	<% for (var i=0; i < posts.length; i++) { %>
+		<h2><a href="/<%= posts[i].id %>"><%= unescape(posts[i].title) %></a></h2>
+		<p>by <%= posts[i].user_name %></p>
+		<% if(unescape(posts[i].body).indexOf("###") >= 0) { %>
+			<p><%- unescape(posts[i].body).split("###")[0] %></p><br/>
+		<% } else { %>
+			<p><%- unescape(posts[i].body) %></p><br/>
+		<% } %>
+	<% } %>
+<% } %>

@@ -18,10 +18,10 @@ TODO
 ----
 * Refactor with Tests
 * Add other databases
-* Finish implementing comments
+* Implement posts search
 * Implement layout management (user view and admin view)
 * Implement plugins API
-* Implement posts search
+* Implement statistics
 
 License:
 --------

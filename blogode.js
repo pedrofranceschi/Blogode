@@ -125,7 +125,6 @@ app.get('/admin/posts/:id', adminLoginFilter, function(req, res) {
 app.post('/admin/posts/save', adminLoginFilter, function(req, res) {
     // saves a post
     
-    sys.puts('saving: ' + sys.inspect(req.param('textEditor')))
     if(!req.param('title') || !req.param('body')) {
         return res.redirect("/admin/posts/new");
     }
@@ -154,6 +153,23 @@ app.get('/admin/posts/destroy/:id', adminLoginFilter, function(req, res) {
     posts.destroyPost(req.param('id'), function () {
         return res.redirect('/admin/posts/')
     });
+});
+
+app.get("/search", function(req, res){
+    // performs a search for a post
+    
+    if(!req.param('keywords')) {
+        res.render('posts/search', {
+            locals: { 'posts': undefined }
+        });
+    }
+    
+    posts.searchForPosts(req.param('keywords'), function(searchResults){
+        res.render('posts/search', {
+            locals: { 'posts': searchResults }
+        }); 
+    });
+    
 });
 
 app.get("/:id", function(req, res){

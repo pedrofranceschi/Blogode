@@ -5,7 +5,12 @@
 		<script src="http://code.jquery.com/jquery-1.4.4.js"></script>
 	</head>
 	<body>
-		<h1>HEADER</h1><br/>
+		<h1>HEADER</h1>
+		<form method="get" action="/search">
+			<input type="text" name="keywords" placeholder="Search term">
+			<input type="submit" value="search">
+		</form>
+		<br/>
 		<%- body %>
 		<br/><br/>
 		<h1>FOOTER</h1>
