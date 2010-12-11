@@ -29,18 +29,6 @@ app.get("/", function(req, res){
     });
 });
 
-app.get("/:id", function(req, res){
-    // return an specific post (by ID)
-    
-    posts.getPost(req.param('id'), function(post) {
-        comments.getCommentsOfPost(req.param('id'), function(comments){
-            res.render('posts/show', {
-                locals: { 'post': post, 'comments': comments }
-            });
-        });
-    });
-});
-
 app.get("/admin", function(req, res){
     // return admin panel
     
@@ -161,6 +149,18 @@ app.get('/admin/posts/destroy/:id', function(req, res) {
     }
     posts.destroyPost(req.param('id'), function () {
         return res.redirect('/admin/posts/')
+    });
+});
+
+app.get("/:id", function(req, res){
+    // return an specific post (by ID)
+    
+    posts.getPost(req.param('id'), function(post) {
+        comments.getCommentsOfPost(req.param('id'), function(comments){
+            res.render('posts/show', {
+                locals: { 'post': post, 'comments': comments }
+            });
+        });
     });
 });
 
