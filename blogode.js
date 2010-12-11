@@ -36,12 +36,18 @@ app.get("/", function(req, res){
     });
 });
 
-app.get("/admin", function(req, res){
-    // return admin panel
+
+function adminLoginFilter(req, res, next) {
+    // verifies if user is an admin
     
     if(!req.session.username) {
         return res.redirect("/admin/login");   
     }
+    next();
+}
+
+app.get("/admin", adminLoginFilter, function(req, res){
+    // return admin panel
     
     res.render('admin/panel', {
         layout: false
@@ -77,12 +83,9 @@ app.post("/admin/authenticate", function(req, res){
     });
 });
 
-app.get('/admin/posts', function(req, res) {
+app.get('/admin/posts', adminLoginFilter, function(req, res) {
     // return the list of posts (as admin)
     
-    if(!req.session.username)  {
-        return res.redirect("/admin/login")
-    }
     posts.getPosts(0, function (posts){
         res.render('admin/posts/index', {
             layout: false,
@@ -91,23 +94,17 @@ app.get('/admin/posts', function(req, res) {
     });
 });
 
-app.get('/admin/posts/new', function(req, res) {
+app.get('/admin/posts/new', adminLoginFilter, function(req, res) {
     // return the formulary to create a new post
     
-    if(!req.session.username)  {
-        return res.redirect("/admin/login")
-    }
     res.render('admin/posts/new', {
         layout: false
     });
 });
 
-app.get('/admin/posts/:id', function(req, res) {
+app.get('/admin/posts/:id', adminLoginFilter, function(req, res) {
     // return a post (to edit)
     
-    if(!req.session.username)  {
-        return res.redirect("/admin/login")
-    }
     posts.getPost(req.param('id'), function (post){
         res.render('admin/posts/edit', {
             layout: false,
@@ -116,12 +113,9 @@ app.get('/admin/posts/:id', function(req, res) {
     });
 });
 
-app.post('/admin/posts/save', function(req, res) {
+app.post('/admin/posts/save', adminLoginFilter, function(req, res) {
     // saves a post
     
-    if(!req.session.username)  {
-        return res.redirect("/admin/login")
-    }
     sys.puts('saving: ' + sys.inspect(req.param('textEditor')))
     if(!req.param('title') || !req.param('body')) {
         return res.redirect("/admin/posts/new");
@@ -131,12 +125,9 @@ app.post('/admin/posts/save', function(req, res) {
     });
 });
 
-app.put('/admin/posts/:id', function(req, res) {
+app.put('/admin/posts/:id', adminLoginFilter, function(req, res) {
     // updates a post
     
-    if(!req.session.username)  {
-        return res.redirect("/admin/login")
-    }
     if(!req.param('title') || !req.param('body')) {
         return res.redirect("/admin/posts/new");
     }
@@ -145,12 +136,9 @@ app.put('/admin/posts/:id', function(req, res) {
     });
 });
 
-app.get('/admin/posts/destroy/:id', function(req, res) {
+app.get('/admin/posts/destroy/:id', adminLoginFilter, function(req, res) {
     // destroys a post
     
-    if(!req.session.username)  {
-        return res.redirect("/admin/login")
-    }
     if(!req.param('id')) {
         return res.redirect("/admin/posts/");
     }
