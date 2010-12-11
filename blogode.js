@@ -136,7 +136,7 @@ app.post('/admin/posts/save', function(req, res) {
     });
 });
 
-app.put('/admin/posts/update', function(req, res) {
+app.put('/admin/posts/:id', function(req, res) {
     // updates a post
     
     if(!req.session.username)  {

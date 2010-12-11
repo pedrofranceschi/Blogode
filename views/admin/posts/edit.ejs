@@ -28,7 +28,7 @@
 	});
 </script>
 
-<form method="post" action="/admin/posts/update" id="createRoomForm">
+<form method="post" action="/admin/posts/<%= post.id %>" id="createRoomForm">
   <input type="hidden" name="_method" value="put" />
 	<h1>New Post</h1>
  	Title: <input type="text" name="title" size="62" value="<%= unescape(post.title) %>"/><br/><br/>
