@@ -1,6 +1,7 @@
 var express = require("express")
 var sys = require("sys");
 var app = express.createServer();
+var faye = require('faye');
 
 app.configure(function() {
     app.use(express.logger());
@@ -14,6 +15,11 @@ app.configure(function() {
     app.set('view options', {
         layout: 'layout'
     });
+});
+
+bayeux = new faye.NodeAdapter({
+    mount: '/faye',
+    timeout: 45
 });
 
 var posts = require('./lib/posts');
@@ -165,5 +171,24 @@ app.get("/:id", function(req, res){
     });
 });
 
+app.post("/:id/comments/save", function(req, res){
+    // saves a comment (for a post)
+    
+    if(!req.param('id') || !req.param('author_name') || !req.param('author_email') || !req.param('comment')) {
+        return res.send("Missing parameters.");
+    }
+    
+    comments.saveComment(req.param('id'), escape(req.param('author_name')), escape(req.param('author_email')), escape(req.param('comment')), function(commentId) {
+        bayeux.getClient().publish('/' + req.param('id') + '/comments/bayeux', {
+            id: commentId,
+            author_name: req.param('author_name'),
+            comment: req.param('comment')
+        });
+        
+        return res.send("OK");
+    });
+});
+
+bayeux.attach(app);
 app.listen(3000);
 console.log("Server on port %s", app.address().port);

@@ -7,6 +7,7 @@ Dependencies
 * npm install mysql
 * npm install express
 * npm install ejs
+* npm install faye
 
 Maintainers
 -----------
