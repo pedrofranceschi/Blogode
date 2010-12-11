@@ -1,6 +1,6 @@
 Blogode
 =======
-Node.js simple blog using Mysql as Database
+Node.js blog engine using MySQL Database
 
 Dependencies
 ------------
@@ -10,13 +10,17 @@ Dependencies
 
 Maintainers
 -----------
-* Pedro Franceschi/pH (<http://www.iblogeek.com/>)
-* Emerson Macedo (<http://codificando.com/>)
+* Pedro Franceschi/pH (@pedroh96) (<http://www.iblogeek.com/>) - Author
+* Emerson Macedo (@emerleite) (<http://codificando.com/>) - Commiter
 
-TOOD
+TODO
 ----
 * Refactor with Tests
 * Add other databases
+* Finish implementing comments
+* Implement layout management (user view and admin view)
+* Implement plugins API
+* Implement posts search
 
 License:
 --------
