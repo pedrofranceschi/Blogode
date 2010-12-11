@@ -5,6 +5,7 @@ var app = express.createServer();
 app.configure(function() {
     app.use(express.logger());
     app.use(express.bodyDecoder());
+    app.use(express.methodOverride());
     app.use(express.cookieDecoder());
     app.use(express.session());
     app.set('view engine', 'ejs');
