@@ -18,7 +18,6 @@ TODO
 ----
 * Refactor with Tests
 * Add other databases
-* Implement posts search
 * Implement layout management (user view and admin view)
 * Implement plugins API
 * Implement statistics
