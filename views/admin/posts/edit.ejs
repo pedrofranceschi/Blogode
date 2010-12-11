@@ -34,9 +34,7 @@
  	Title: <input type="text" name="title" size="62" value="<%= unescape(post.title) %>"/><br/><br/>
 	Body:<br/><br/>
 	
-	<textarea id="elm1" name="body" rows="15" cols="80" style="550px; height:300px;">
-		<%= unescape(post.body) %>
-	</textarea>
+	<textarea id="elm1" name="body" rows="15" cols="80" style="550px; height:300px;"><%= unescape(post.body) %></textarea>
 	
 	<input type="hidden" name="id" value="<%= post.id %>"/><br/>
 		
