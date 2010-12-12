@@ -1,0 +1,42 @@
+<script src="http://code.jquery.com/jquery-1.4.4.js"></script>
+<script>
+	function updateCurrentEditFile() {
+		$("input[name=\"file_type\"]").val($("select#template_select_list").val());
+		$.get('/admin/template/get_file_content?file_type=' + $("select#template_select_list").val(), function(data) {
+			$('textarea#elm1').text(data);
+		});
+	}
+	
+	function updateFileContent() {
+		$.ajax({  
+		  type: "PUT",  
+		  url: "/admin/template/set_file_content",
+		  data: { content: $("textarea#elm1").val(), file_type: $("input[name=\"file_type\"]").val() },
+		  success: function() {
+		  }
+		});
+	}
+</script>
+
+<body onLoad="updateCurrentEditFile();">
+
+<h1>Template manager</h1>
+
+File to edit:
+<select id="template_select_list" onChange="updateCurrentEditFile();">
+  <option value="layout">Content template</option>
+  <option value="index">Index</option>
+  <option value="post_show">Post reading</option>
+  <option value="stylesheet">Stylesheet</option>
+</select>
+
+<br/><br/>
+
+Template editor:
+<br/><br/>
+
+<input type="hidden" name="file_type"/>
+<textarea id="elm1" name="content" rows="15" cols="80" style="550px; height:300px;">
+</textarea><br/><br/>
+		
+<input type="submit" id="submit" value="Save" onClick="updateFileContent();"/>

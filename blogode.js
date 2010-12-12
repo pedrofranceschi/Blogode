@@ -1,5 +1,6 @@
 var express = require("express")
 var sys = require("sys");
+var fs = require("fs");
 var app = express.createServer();
 var faye = require('faye');
 
@@ -153,6 +154,68 @@ app.get('/admin/posts/destroy/:id', adminLoginFilter, function(req, res) {
     posts.destroyPost(req.param('id'), function () {
         return res.redirect('/admin/posts/')
     });
+});
+
+app.get('/admin/template', adminLoginFilter, function(req, res) {
+    // returns the template file editor
+    
+    res.render('admin/template/index', {
+        layout: false
+    });
+});
+
+app.get('/admin/template/get_file_content', adminLoginFilter, function(req, res) {
+    // returns a template file content
+    
+    var fileToRead = ""
+    if(req.param('file_type') == 'layout') {
+        fileToRead = "./views/layout.ejs";
+    } else if(req.param('file_type') == 'index') {
+        fileToRead = "./views/posts/index.ejs";
+    } else if(req.param('file_type') == "post_show") {
+        fileToRead = "./views/posts/show.ejs";
+    } else if(req.param('file_type') == "stylesheet") {
+        fileToRead = "./public/stylesheet.css";
+    } else {
+        return res.send("File not found.");
+    }
+    
+    fs.readFile(fileToRead, function(err, content) {
+        if (err) throw err;
+        return res.send(content);
+    });
+    
+});
+
+app.put('/admin/template/set_file_content', adminLoginFilter, function(req, res) {
+    // sets a template file some content
+    
+    if(req.param('content') == '' || req.param('content') == undefined) {
+        return res.send("Content can't be blank!");
+    }
+    
+    var fileToWrite = ""
+    if(req.param('file_type') == 'layout') {
+        fileToWrite = "./views/layout.ejs";
+    } else if(req.param('file_type') == 'index') {
+        fileToWrite = "./views/posts/index.ejs";
+    } else if(req.param('file_type') == "post_show") {
+        fileToWrite = "./views/posts/show.ejs";
+    } else if(req.param('file_type') == "stylesheet") {
+        fileToWrite = "./public/stylesheet.css";
+    } else {
+        return res.send("File not found.");
+    }
+    
+    fs.writeFile(fileToWrite, req.param('content'), function (err) {
+        if (err) throw err;
+        return res.redirect('/admin/template')
+    });
+    
+    // fs.readFile(fileToRead, function(err, content) {
+    //     return res.send(content);
+    // });
+    
 });
 
 app.get("/search", function(req, res){
