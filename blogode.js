@@ -26,6 +26,7 @@ bayeux = new faye.NodeAdapter({
 var posts = require('./lib/posts');
 var users = require('./lib/users');
 var comments = require('./lib/comments');
+var config = require('./lib/config');
 
 app.get("/", function(req, res){
     // return posts list
@@ -159,9 +160,29 @@ app.get('/admin/posts/destroy/:id', adminLoginFilter, function(req, res) {
 app.get('/admin/template', adminLoginFilter, function(req, res) {
     // returns the template file editor
     
-    res.render('admin/template/index', {
-        layout: false
-    });
+    config.getBlogConfigKeyValue('current_template', function(value) {
+        var templateInfos = new Array();
+        fs.readdir('./public/templates', function(err, files) {
+            for (var i=0; i < files.length; i++) {
+                var content = fs.readFileSync('./public/templates/' + files[i] + '/info.json')
+                var templateParser = JSON.parse(content);
+                templateParser['template_folder_name'] = files[i];
+                
+                var isCurrentTheme = false;
+                if(value == files[i]) {
+                    isCurrentTheme = true;
+                }
+                
+                templateParser['current_theme'] = isCurrentTheme;
+                templateInfos.push(templateParser);
+            }
+            
+            res.render('admin/template/index', {
+                layout: false,
+                locals: { 'template_infos': templateInfos }
+            });
+        });
+    })
 });
 
 app.get('/admin/template/get_file_content', adminLoginFilter, function(req, res) {
@@ -212,10 +233,50 @@ app.put('/admin/template/set_file_content', adminLoginFilter, function(req, res)
         return res.redirect('/admin/template')
     });
     
-    // fs.readFile(fileToRead, function(err, content) {
-    //     return res.send(content);
-    // });
+});
+
+app.post('/admin/template/apply_template', adminLoginFilter, function(req, res) {
+    // apply a template as the current template
     
+    if(req.param('name') == '' || req.param('name') == undefined) {
+        return res.send("Template name can't be blank!");
+    }
+    
+    var templatePath = './public/templates/' + req.param('name');
+    
+    fs.readFile(templatePath + '/info.json', function(err, content) {
+        if (err) {
+            if(err.message.indexOf("No such file or directory") >= 0) {
+                return res.send("Template not found");
+            } else {
+                return res.send("Unknown error")
+            }
+        }
+        
+        fs.readFile(templatePath + '/layout.html', function(err, content) {
+            if (err) return res.send("Layout file not found");
+            fs.writeFile('./views/layout.ejs', content, function (err) {
+                fs.readFile(templatePath + '/posts/index.html', function(err, content) {
+                    if (err) return res.send("Index not found");
+                    fs.writeFile('./views/posts/index.ejs', content, function (err) {
+                        fs.readFile(templatePath + '/posts/show.html', function(err, content) {
+                            if (err) return res.send("Read post file not found");
+                            fs.writeFile('./views/posts/show.ejs', content, function (err) {
+                                fs.readFile(templatePath + '/stylesheet.css', function(err, content) {
+                                    if (err) return res.send("Stylesheet not found");
+                                    fs.writeFile('./public/stylesheet.css', content, function (err) {
+                                        config.setBlogConfigKeyValue('current_template', req.param('name'), function() {
+                                            return res.redirect('/admin/template');  
+                                        })
+                                    });
+                                });
+                            });
+                        });
+                    });
+                });
+            });
+        });
+    });
 });
 
 app.get("/search", function(req, res){

@@ -1,8 +1,8 @@
 <script src="http://code.jquery.com/jquery-1.4.4.js"></script>
 <script>
 	function updateCurrentEditFile() {
-		$("input[name=\"file_type\"]").val($("select#template_select_list").val());
-		$.get('/admin/template/get_file_content?file_type=' + $("select#template_select_list").val(), function(data) {
+		$("input[name=\"file_type\"]").val($("select#file_select_list").val());
+		$.get('/admin/template/get_file_content?file_type=' + $("select#file_select_list").val(), function(data) {
 			$('textarea#elm1').text(data);
 		});
 	}
@@ -22,8 +22,24 @@
 
 <h1>Template manager</h1>
 
+<form method="post" action="/admin/template/apply_template">
+	Change theme:
+	<select id="template_select_list" name="name">
+		<% for (var i=0; i < template_infos.length; i++) { %>			
+			<option value="<%= template_infos[i].template_folder_name %>"
+			
+			<% if(template_infos[i].current_theme == true) { %>
+				selected
+			<% } %>
+				
+			><%= template_infos[i].template_name %></option>
+		<% } %>
+	</select>
+	<input type="submit" value="Apply">
+</form>
+
 File to edit:
-<select id="template_select_list" onChange="updateCurrentEditFile();">
+<select id="file_select_list" onChange="updateCurrentEditFile();">
   <option value="layout">Content template</option>
   <option value="index">Index</option>
   <option value="post_show">Post reading</option>
