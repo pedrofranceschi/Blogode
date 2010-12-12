@@ -4,6 +4,11 @@ var fs = require("fs");
 var app = express.createServer();
 var faye = require('faye');
 
+var posts = require('./lib/posts');
+var users = require('./lib/users');
+var comments = require('./lib/comments');
+var config = require('./lib/config');
+
 app.configure(function() {
     app.use(express.logger());
     app.use(express.bodyDecoder());
@@ -22,11 +27,6 @@ bayeux = new faye.NodeAdapter({
     mount: '/faye',
     timeout: 45
 });
-
-var posts = require('./lib/posts');
-var users = require('./lib/users');
-var comments = require('./lib/comments');
-var config = require('./lib/config');
 
 app.get("/", function(req, res){
     // return posts list
@@ -216,21 +216,33 @@ app.put('/admin/template/set_file_content', adminLoginFilter, function(req, res)
     }
     
     var fileToWrite = ""
-    if(req.param('file_type') == 'layout') {
-        fileToWrite = "./views/layout.ejs";
-    } else if(req.param('file_type') == 'index') {
-        fileToWrite = "./views/posts/index.ejs";
-    } else if(req.param('file_type') == "post_show") {
-        fileToWrite = "./views/posts/show.ejs";
-    } else if(req.param('file_type') == "stylesheet") {
-        fileToWrite = "./public/stylesheet.css";
-    } else {
-        return res.send("File not found.");
-    }
+    var templateFileToWrite = ""
     
-    fs.writeFile(fileToWrite, req.param('content'), function (err) {
-        if (err) throw err;
-        return res.redirect('/admin/template')
+    config.getBlogConfigKeyValue('current_template', function(value) {
+        if(req.param('file_type') == 'layout') {
+            fileToWrite = "./views/layout.ejs";
+            templateFileToWrite = "./public/templates/" + value + "/layout.html"
+        } else if(req.param('file_type') == 'index') {
+            fileToWrite = "./views/posts/index.ejs";
+            templateFileToWrite = "./public/templates/" + value + "/posts/index.html"
+        } else if(req.param('file_type') == "post_show") {
+            fileToWrite = "./views/posts/show.ejs";
+            templateFileToWrite = "./public/templates/" + value + "/posts/show.html"
+        } else if(req.param('file_type') == "stylesheet") {
+            fileToWrite = "./public/stylesheet.css";
+            templateFileToWrite = "./public/templates/" + value + "/stylesheet.css"
+        } else {
+            return res.send("File not found.");
+        }
+        
+        fs.writeFile(fileToWrite, req.param('content'), function (err) {
+            if (err) throw err;
+            fs.writeFile(templateFileToWrite, req.param('content'), function (err) {
+                if (err) throw err;
+                return res.redirect('/admin/template')
+            });
+        });
+    
     });
     
 });

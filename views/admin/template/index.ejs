@@ -16,15 +16,20 @@
 		  }
 		});
 	}
+	
+	function changeTemplate() {
+		$('#change_template_form').submit();
+	}
+	
 </script>
 
 <body onLoad="updateCurrentEditFile();">
 
 <h1>Template manager</h1>
 
-<form method="post" action="/admin/template/apply_template">
+<form method="post" action="/admin/template/apply_template" id="change_template_form">
 	Change theme:
-	<select id="template_select_list" name="name">
+	<select id="template_select_list" name="name" onChange="changeTemplate();">
 		<% for (var i=0; i < template_infos.length; i++) { %>			
 			<option value="<%= template_infos[i].template_folder_name %>"
 			
@@ -35,7 +40,7 @@
 			><%= template_infos[i].template_name %></option>
 		<% } %>
 	</select>
-	<input type="submit" value="Apply">
+	<!-- <input type="submit" value="Apply"> -->
 </form>
 
 File to edit:
