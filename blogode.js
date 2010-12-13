@@ -1,18 +1,19 @@
 var express = require("express")
 var sys = require("sys");
 var fs = require("fs");
-var app = express.createServer();
 var faye = require('faye');
-
 var posts = require('./lib/posts');
 var users = require('./lib/users');
 var comments = require('./lib/comments');
 var config = require('./lib/config');
 
+var app = express.createServer();
+
 var blogConfig;
 config.getAllBlogConfigKeyValues(function(value) {
     blogConfig = value;
 });
+
 
 app.configure(function() {
     app.use(express.logger());
@@ -26,7 +27,19 @@ app.configure(function() {
     app.set('view options', {
         layout: 'layout'
     });
+    loadPlugins();
 });
+
+var loadedPlugins = new Array();
+function loadPlugins() {
+    fs.readdir('./plugins/', function(err, files) {
+        for (var i=0; i < files.length; i++) {
+            var plugin = require('./plugins/' + files[i] + '/plugin.js');
+            var pluginInfo = plugin.initialize();
+            loadedPlugins[pluginInfo[0].toString()] = plugin;
+        }
+    });
+}
 
 app.dynamicHelpers({
     blogName: function(){
@@ -37,6 +50,18 @@ app.dynamicHelpers({
     },
     blogDescription: function(){
         return blogConfig['blog_description'];
+    }
+});
+
+app.helpers({
+    pluginFunction: function(pluginName, functionToCall, parametersArray) {
+        var plugin = loadedPlugins[pluginName];
+        var response = "__WAITING_FOR_RESPONSE__";
+        plugin[functionToCall](parametersArray, function(callbackParameters){
+            response = callbackParameters
+        });
+        while(response == "__WAITING_FOR_RESPONSE__") {}
+        return response;
     }
 });
 
