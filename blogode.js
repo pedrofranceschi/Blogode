@@ -9,6 +9,11 @@ var users = require('./lib/users');
 var comments = require('./lib/comments');
 var config = require('./lib/config');
 
+var blogConfig;
+config.getAllBlogConfigKeyValues(function(value) {
+    blogConfig = value;
+});
+
 app.configure(function() {
     app.use(express.logger());
     app.use(express.bodyDecoder());
@@ -21,6 +26,18 @@ app.configure(function() {
     app.set('view options', {
         layout: 'layout'
     });
+});
+
+app.dynamicHelpers({
+    blogName: function(){
+        return blogConfig['blog_name'];
+    },
+    blogAddress: function(){
+        return blogConfig['blog_address'];
+    },
+    blogDescription: function(){
+        return blogConfig['blog_description'];
+    }
 });
 
 bayeux = new faye.NodeAdapter({
