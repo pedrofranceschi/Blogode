@@ -5,7 +5,9 @@ var faye = require('faye');
 var posts = require('./lib/posts');
 var users = require('./lib/users');
 var comments = require('./lib/comments');
-var config = require('./lib/config');
+var config = require('./lib/config')
+  , homeController = require('./controllers/home')
+  , adminFilter = require('./filters/admin');
 
 var app = express.createServer();
 
@@ -70,36 +72,9 @@ bayeux = new faye.NodeAdapter({
     timeout: 45
 });
 
-app.get("/", function(req, res){
-    // return posts list
-    
-    posts.getPosts(10, function (posts){
-        res.render('posts/index', {
-            locals: { 'posts': posts }
-        });
-    });
-});
 
-app.get("/feed", function(req, res){
-    // return posts in XML format
-    
-    posts.getPosts(10, function (postsResult){
-        posts.generatePostsXML(postsResult, function(xmlString) {
-            return res.send(xmlString); 
-        });
-    });
-});
 
-function adminLoginFilter(req, res, next) {
-    // verifies if user is an admin
-    
-    if(!req.session.username) {
-        return res.redirect("/admin/login");   
-    }
-    next();
-}
-
-app.get("/admin", adminLoginFilter, function(req, res){
+app.get("/admin", adminFilter.verifyLogin, function(req, res){
     // return admin panel
     
     res.render('admin/panel', {
@@ -136,7 +111,7 @@ app.post("/admin/authenticate", function(req, res){
     });
 });
 
-app.get('/admin/posts', adminLoginFilter, function(req, res) {
+app.get('/admin/posts', adminFilter.verifyLogin, function(req, res) {
     // return the list of posts (as admin)
     
     posts.getPosts(0, function (posts){
@@ -147,7 +122,7 @@ app.get('/admin/posts', adminLoginFilter, function(req, res) {
     });
 });
 
-app.get('/admin/posts/new', adminLoginFilter, function(req, res) {
+app.get('/admin/posts/new', adminFilter.verifyLogin, function(req, res) {
     // return the formulary to create a new post
     
     res.render('admin/posts/new', {
@@ -155,7 +130,7 @@ app.get('/admin/posts/new', adminLoginFilter, function(req, res) {
     });
 });
 
-app.get('/admin/posts/:id', adminLoginFilter, function(req, res) {
+app.get('/admin/posts/:id', adminFilter.verifyLogin, function(req, res) {
     // return a post (to edit)
     
     posts.getPost(req.param('id'), function (post){
@@ -166,7 +141,7 @@ app.get('/admin/posts/:id', adminLoginFilter, function(req, res) {
     });
 });
 
-app.post('/admin/posts/save', adminLoginFilter, function(req, res) {
+app.post('/admin/posts/save', adminFilter.verifyLogin, function(req, res) {
     // saves a post
     
     if(!req.param('title') || !req.param('body')) {
@@ -177,7 +152,7 @@ app.post('/admin/posts/save', adminLoginFilter, function(req, res) {
     });
 });
 
-app.put('/admin/posts/:id', adminLoginFilter, function(req, res) {
+app.put('/admin/posts/:id', adminFilter.verifyLogin, function(req, res) {
     // updates a post
     
     if(!req.param('title') || !req.param('body')) {
@@ -188,7 +163,7 @@ app.put('/admin/posts/:id', adminLoginFilter, function(req, res) {
     });
 });
 
-app.get('/admin/posts/destroy/:id', adminLoginFilter, function(req, res) {
+app.get('/admin/posts/destroy/:id', adminFilter.verifyLogin, function(req, res) {
     // destroys a post
     
     if(!req.param('id')) {
@@ -199,7 +174,7 @@ app.get('/admin/posts/destroy/:id', adminLoginFilter, function(req, res) {
     });
 });
 
-app.get('/admin/template', adminLoginFilter, function(req, res) {
+app.get('/admin/template', adminFilter.verifyLogin, function(req, res) {
     // returns the template file editor
     
     config.getBlogConfigKeyValue('current_template', function(value) {
@@ -227,7 +202,7 @@ app.get('/admin/template', adminLoginFilter, function(req, res) {
     })
 });
 
-app.get('/admin/template/get_file_content', adminLoginFilter, function(req, res) {
+app.get('/admin/template/get_file_content', adminFilter.verifyLogin, function(req, res) {
     // returns a template file content
     
     var fileToRead = ""
@@ -250,7 +225,7 @@ app.get('/admin/template/get_file_content', adminLoginFilter, function(req, res)
     
 });
 
-app.put('/admin/template/set_file_content', adminLoginFilter, function(req, res) {
+app.put('/admin/template/set_file_content', adminFilter.verifyLogin, function(req, res) {
     // sets a template file some content
     
     if(req.param('content') == '' || req.param('content') == undefined) {
@@ -289,7 +264,7 @@ app.put('/admin/template/set_file_content', adminLoginFilter, function(req, res)
     
 });
 
-app.post('/admin/template/apply_template', adminLoginFilter, function(req, res) {
+app.post('/admin/template/apply_template', adminFilter.verifyLogin, function(req, res) {
     // apply a template as the current template
     
     if(req.param('name') == '' || req.param('name') == undefined) {
@@ -333,34 +308,10 @@ app.post('/admin/template/apply_template', adminLoginFilter, function(req, res) 
     });
 });
 
-app.get("/search", function(req, res){
-    // performs a search for a post
-    
-    if(!req.param('keywords')) {
-        res.render('posts/search', {
-            locals: { 'posts': undefined }
-        });
-    }
-    
-    posts.searchForPosts(req.param('keywords'), function(searchResults){
-        res.render('posts/search', {
-            locals: { 'posts': searchResults }
-        }); 
-    });
-    
-});
-
-app.get("/:id", function(req, res){
-    // return an specific post (by ID)
-    
-    posts.getPost(req.param('id'), function(post) {
-        comments.getCommentsOfPost(req.param('id'), function(comments){
-            res.render('posts/show', {
-                locals: { 'post': post, 'comments': comments }
-            });
-        });
-    });
-});
+app.get("/", homeController.index);
+app.get("/feed", homeController.feed);
+app.get("/search", homeController.search);
+app.get("/:id", homeController.show);
 
 app.post("/:id/comments/save", function(req, res){
     // saves a comment (for a post)
