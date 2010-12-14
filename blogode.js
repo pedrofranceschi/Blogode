@@ -7,6 +7,7 @@ var users = require('./lib/users');
 var comments = require('./lib/comments');
 var config = require('./lib/config')
   , homeController = require('./controllers/home')
+  , adminController = require('./controllers/admin')
   , adminFilter = require('./filters/admin');
 
 var app = express.createServer();
@@ -72,107 +73,6 @@ bayeux = new faye.NodeAdapter({
     timeout: 45
 });
 
-
-
-app.get("/admin", adminFilter.verifyLogin, function(req, res){
-    // return admin panel
-    
-    res.render('admin/panel', {
-        layout: false
-    });
-});
-
-
-app.get("/admin/login", function(req, res){
-    // return admin login page
-    
-    if(req.session.username) {
-        return res.redirect("/admin")
-    }
-    
-    res.render('admin/login', {
-        layout: false
-    });
-});
-
-app.post("/admin/authenticate", function(req, res){
-    // verifies admin credentials
-    
-    if(!req.param('username') || !req.param('password')) {
-        res.redirect('/admin/login')
-    }
-    
-    users.verifyCredentials(req.param('username'), req.param('password'), function(isValidUser, userId){
-        if(isValidUser) {
-            req.session.username = req.param('username');
-            req.session.user_id = userId;
-        }
-        res.redirect("/admin");
-    });
-});
-
-app.get('/admin/posts', adminFilter.verifyLogin, function(req, res) {
-    // return the list of posts (as admin)
-    
-    posts.getPosts(0, function (posts){
-        res.render('admin/posts/index', {
-            layout: false,
-            locals: { 'posts': posts }
-        });
-    });
-});
-
-app.get('/admin/posts/new', adminFilter.verifyLogin, function(req, res) {
-    // return the formulary to create a new post
-    
-    res.render('admin/posts/new', {
-        layout: false
-    });
-});
-
-app.get('/admin/posts/:id', adminFilter.verifyLogin, function(req, res) {
-    // return a post (to edit)
-    
-    posts.getPost(req.param('id'), function (post){
-        res.render('admin/posts/edit', {
-            layout: false,
-            locals: { 'post': post }
-        });
-    });
-});
-
-app.post('/admin/posts/save', adminFilter.verifyLogin, function(req, res) {
-    // saves a post
-    
-    if(!req.param('title') || !req.param('body')) {
-        return res.redirect("/admin/posts/new");
-    }
-    posts.createPost(req.param('title'), req.param('body'), req.session.user_id, function(postId) {
-        return res.redirect('/admin/posts/' + postId);
-    });
-});
-
-app.put('/admin/posts/:id', adminFilter.verifyLogin, function(req, res) {
-    // updates a post
-    
-    if(!req.param('title') || !req.param('body')) {
-        return res.redirect("/admin/posts/new");
-    }
-    posts.updatePost(req.param('id'), req.param('title'), req.param('body'), function() {
-        return res.redirect('/admin/posts/' + req.param('id'));
-    });
-});
-
-app.get('/admin/posts/destroy/:id', adminFilter.verifyLogin, function(req, res) {
-    // destroys a post
-    
-    if(!req.param('id')) {
-        return res.redirect("/admin/posts/");
-    }
-    posts.destroyPost(req.param('id'), function () {
-        return res.redirect('/admin/posts/')
-    });
-});
 
 app.get('/admin/template', adminFilter.verifyLogin, function(req, res) {
     // returns the template file editor
@@ -308,6 +208,18 @@ app.post('/admin/template/apply_template', adminFilter.verifyLogin, function(req
     });
 });
 
+//Admin Routes
+app.get("/admin", adminFilter.verifyLogin, adminController.index);
+app.get("/admin/login", adminController.login);
+app.post("/admin/authenticate", adminController.authenticate);
+app.get('/admin/posts', adminFilter.verifyLogin, adminController.posts);
+app.get('/admin/posts/new', adminFilter.verifyLogin, adminController.newPost);
+app.get('/admin/posts/:id', adminFilter.verifyLogin, adminController.showPost);
+app.post('/admin/posts/save', adminFilter.verifyLogin, adminController.createPost);
+app.put('/admin/posts/:id', adminFilter.verifyLogin, adminController.updatePost);
+app.get('/admin/posts/destroy/:id', adminFilter.verifyLogin, adminController.destroyPost);
+
+//Home routes
 app.get("/", homeController.index);
 app.get("/feed", homeController.feed);
 app.get("/search", homeController.search);
