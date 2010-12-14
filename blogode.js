@@ -144,7 +144,7 @@ function runPlugin(req, res, next) {
             sys.puts('plugins: ' + sys.inspect(req.plugins));
             sys.puts('run 9')
 
-            req.events.emit('pluginsAreLoaded');
+            req.events.emit('pluginsAreLoaded_' + req.session.lastAccess);
         }
     );
     next();
@@ -154,8 +154,8 @@ function runPlugin(req, res, next) {
 // Posts routes
 app.get("/", runPlugin, postsController.index);
 app.get("/feed", postsController.feed);
-app.get("/search", postsController.search);
-app.get("/:id", postsController.show);
+app.get("/search", runPlugin, postsController.search);
+app.get("/:id", runPlugin, postsController.show);
 app.post("/:id/comments/save", postsController.saveComment);
 
 bayeux.attach(app);
