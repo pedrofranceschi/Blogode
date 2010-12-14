@@ -3,6 +3,7 @@ var sys = require("sys");
 var fs = require("fs");
 var Events = require('events');
 var faye = require('faye');
+var Step = require('step');
 var posts = require('./lib/posts');
 var users = require('./lib/users');
 var comments = require('./lib/comments');
@@ -37,13 +38,13 @@ app.configure(function() {
     loadPlugins();
 });
 
-var loadedPlugins = new Array();
+var loadedPlugins = {};
 function loadPlugins() {
     fs.readdir('./plugins/', function(err, files) {
-        for (var i=0; i < files.length; i++) {
-            var plugin = require('./plugins/' + files[i] + '/plugin.js');
-            var pluginInfo = plugin.initialize(events);
-            loadedPlugins[pluginInfo[0].toString()] = plugin;
+        for (var i=0; i < files.length; i++) {            
+            var plugin = require('./plugins/' + files[i] + '/plugin.js').initialize();
+            var pluginInfo = plugin.pluginInfos;
+            loadedPlugins[pluginInfo[0]] = plugin;
         }
     });
 }
@@ -57,6 +58,9 @@ app.dynamicHelpers({
     },
     blogDescription: function(){
         return blogConfig['blog_description'];
+    },
+    plugins: function(req, res) {
+        return req.plugins;
     }
 });
 
@@ -69,7 +73,7 @@ app.helpers({
         });
         while(response == "__WAITING_FOR_RESPONSE__") {}
         return response;
-    }
+    },
 })
 
 events.on('performAssyncOperation', function(plugin, functionName, tag, params) {
@@ -98,8 +102,57 @@ app.put('/admin/template/set_file_content', adminFilter.verifyLogin, adminContro
 app.get('/admin/template/get_file_content', adminFilter.verifyLogin, adminController.getTemplateFileContent);
 app.get('/admin/template', adminFilter.verifyLogin, adminController.templateIndex);
 
+function runPlugin(req, res, next) {
+    req.events = events;
+    sys.puts('running plugin')
+    Step(
+        function () {
+            sys.puts('run 2')
+            for(var p in loadedPlugins) {
+                sys.puts('run 3')
+                //calling this.parallel() means that we dump the results of each call
+                //in order into tne next functions arguments array.
+                sys.puts('loadedPlugins[p]: ' + sys.inspect(loadedPlugins[p]));
+                loadedPlugins[p].run(req, res, this.parallel());
+                sys.puts('this: ' + sys.inspect(this))
+            }
+            sys.puts('run 4')
+        },
+        function(err) {
+            sys.puts('run 6')
+            // if(err) throw err;
+            sys.puts('run 7')
+
+            // we want to create an  array of plugins aligned with the remaining
+            // arguments in this function. To do this, I created a 1 element array
+            // and pushed the remaining names in order onto that array. Then, when
+            // we iterate through the arguments list, I can use the same index
+            // for both arrays to assemble my final result.
+            var pluginNames = [];
+            for(var p in loadedPlugins) {
+                sys.puts('run 7')
+                pluginNames.push(p);
+            }
+            
+            sys.puts('run 8')
+
+            req.plugins = {};
+            for(var p in loadedPlugins) {
+                sys.puts('in loop!!!')
+                req.plugins[p] = arguments[0];
+            }
+            sys.puts('plugins: ' + sys.inspect(req.plugins));
+            sys.puts('run 9')
+
+            req.events.emit('pluginsAreLoaded');
+        }
+    );
+    next();
+}
+
+
 // Posts routes
-app.get("/", postsController.index);
+app.get("/", runPlugin, postsController.index);
 app.get("/feed", postsController.feed);
 app.get("/search", postsController.search);
 app.get("/:id", postsController.show);

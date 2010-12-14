@@ -1,15 +1,21 @@
+var sys = require('sys')
 var posts = require('../lib/posts')
   , comments = require('../lib/comments');
+  
   
 
 exports.index = function(req, res){
   // return posts list
   
   posts.getPosts(10, function (posts){
-    res.render('posts/index', {
-      locals: { 'posts': posts }
+    req.events.on('pluginsAreLoaded', function() {
+      sys.puts('req.plugins_:' + sys.inspect(req.plugins))
+      res.render('posts/index', {
+        locals: { 'posts': posts }
+      });
     });
   });
+  
 };
 
 exports.feed = function(req, res){
