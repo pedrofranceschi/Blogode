@@ -4,6 +4,7 @@ var posts = require('../lib/posts')
 
 exports.index = function(req, res){
   // return posts list
+  
   posts.getPosts(10, function (posts){
     res.render('posts/index', {
       locals: { 'posts': posts }
@@ -13,6 +14,7 @@ exports.index = function(req, res){
 
 exports.feed = function(req, res){
   // return posts in XML format
+  
   posts.getPosts(10, function (postsResult){
     posts.generatePostsXML(postsResult, function(xmlString) {
       return res.send(xmlString); 
@@ -38,6 +40,7 @@ exports.search = function(req, res){
 
 exports.show = function(req, res){
   // return an specific post (by ID)
+  
   posts.getPost(req.param('id'), function(post) {
     comments.getCommentsOfPost(req.param('id'), function(comments){
       res.render('posts/show', {
@@ -46,3 +49,21 @@ exports.show = function(req, res){
     });
   });
 };
+
+exports.saveComment = function(req, res){
+    // saves a comment (for a post)
+
+    if(!req.param('id') || !req.param('author_name') || !req.param('author_email') || !req.param('comment')) {
+        return res.send("Missing parameters.");
+    }
+
+    comments.saveComment(req.param('id'), req.param('author_name'), req.param('author_email'), req.param('comment'), function(commentId) {
+        bayeux.getClient().publish('/' + req.param('id') + '/comments/bayeux', {
+            id: commentId,
+            author_name: req.param('author_name'),
+            comment: req.param('comment')
+        });
+
+        return res.send("OK");
+    });
+}
