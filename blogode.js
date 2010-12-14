@@ -1,6 +1,7 @@
 var express = require("express")
 var sys = require("sys");
 var fs = require("fs");
+var Events = require('events');
 var faye = require('faye');
 var posts = require('./lib/posts');
 var users = require('./lib/users');
@@ -9,6 +10,9 @@ var config = require('./lib/config')
   , postsController = require('./controllers/posts')
   , adminController = require('./controllers/admin')
   , adminFilter = require('./filters/admin');
+  
+
+var events = new Events.EventEmitter();
 
 var app = express.createServer();
 
@@ -38,7 +42,7 @@ function loadPlugins() {
     fs.readdir('./plugins/', function(err, files) {
         for (var i=0; i < files.length; i++) {
             var plugin = require('./plugins/' + files[i] + '/plugin.js');
-            var pluginInfo = plugin.initialize();
+            var pluginInfo = plugin.initialize(events);
             loadedPlugins[pluginInfo[0].toString()] = plugin;
         }
     });
@@ -66,6 +70,12 @@ app.helpers({
         while(response == "__WAITING_FOR_RESPONSE__") {}
         return response;
     }
+})
+
+events.on('performAssyncOperation', function(plugin, functionName, tag, params) {
+    plugin[functionName](params, function(response) {
+        events.emit('didFinishAssyncOperation', tag, response);
+    });
 });
 
 bayeux = new faye.NodeAdapter({
