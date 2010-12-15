@@ -90,16 +90,23 @@ function runPlugin(req, res, next) {
     if(req.events != events) {
         req.events = events;
     }
+    var execOrder = new Array();
     Step(
         function () {
+            var counter = 0;
             for(var p in loadedPlugins) {
-                loadedPlugins[p].run(req, res, this.parallel());
+                execOrder[p] = counter;
+                var par = this.parallel();
+                setTimeout(function() {
+                    loadedPlugins[p].run(req, res, par);
+                }, 10);
+                counter += 1;
             }
         },
         function(err) {
             req.plugins = {};
             for(var p in loadedPlugins) {
-                req.plugins[p] = arguments[0];
+                req.plugins[p] = arguments[execOrder[p]];
             }
             
             req.events.emit('pluginsAreLoaded');
