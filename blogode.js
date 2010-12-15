@@ -144,7 +144,8 @@ function runPlugin(req, res, next) {
             sys.puts('plugins: ' + sys.inspect(req.plugins));
             sys.puts('run 9')
 
-            req.events.emit('pluginsAreLoaded_' + req.session.lastAccess);
+            req.events.emit('pluginsAreLoaded');
+            next();
         }
     );
     next();

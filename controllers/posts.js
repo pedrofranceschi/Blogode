@@ -6,11 +6,13 @@ exports.index = function(req, res){
   // return posts list
   
   posts.getPosts(10, function (posts){
-    req.events.on('pluginsAreLoaded_' + req.session.lastAccess, function() {
+    req.events.on('pluginsAreLoaded', function() {
       sys.puts('req.plugins_:' + sys.inspect(req.plugins))
+      if(req.plugins != undefined) {
       res.render('posts/index', {
         locals: { 'posts': posts }
       });
+      }
     });
   });
   
