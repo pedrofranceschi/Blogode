@@ -66,24 +66,6 @@ app.dynamicHelpers({
     }
 });
 
-app.helpers({
-    pluginFunction: function(pluginName, functionToCall, parametersArray) {
-        var plugin = loadedPlugins[pluginName];
-        var response = "__WAITING_FOR_RESPONSE__";
-        plugin[functionToCall](parametersArray, function(callbackParameters){
-            response = callbackParameters
-        });
-        while(response == "__WAITING_FOR_RESPONSE__") {}
-        return response;
-    },
-})
-
-events.on('performAssyncOperation', function(plugin, functionName, tag, params) {
-    plugin[functionName](params, function(response) {
-        events.emit('didFinishAssyncOperation', tag, response);
-    });
-});
-
 bayeux = new faye.NodeAdapter({
     mount: '/faye',
     timeout: 45
@@ -105,7 +87,9 @@ app.get('/admin/template/get_file_content', adminFilter.verifyLogin, adminContro
 app.get('/admin/template', adminFilter.verifyLogin, adminController.templateIndex);
 
 function runPlugin(req, res, next) {
-    req.events = events;
+    if(req.events != events) {
+        req.events = events;
+    }
     Step(
         function () {
             for(var p in loadedPlugins) {
@@ -113,26 +97,17 @@ function runPlugin(req, res, next) {
             }
         },
         function(err) {
-            var pluginNames = [];
-            for(var p in loadedPlugins) {
-                pluginNames.push(p);
-            }
-
             req.plugins = {};
             for(var p in loadedPlugins) {
                 req.plugins[p] = arguments[0];
             }
-
+            
             req.events.emit('pluginsAreLoaded');
             next();
         }
     );
     next();
 }
-
-// process.on('uncaughtException', function (err) {
-//   console.log('Caught exception: ' + err);
-// });
 
 // Posts routes
 app.get("/", runPlugin, postsController.index);
