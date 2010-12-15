@@ -4,6 +4,7 @@ var fs = require("fs");
 var Events = require('events');
 var faye = require('faye');
 var Step = require('step');
+var child = require('child_process');
 var posts = require('./lib/posts');
 var users = require('./lib/users');
 var comments = require('./lib/comments');
@@ -22,6 +23,7 @@ config.getAllBlogConfigKeyValues(function(value) {
     blogConfig = value;
 });
 
+child.exec("limit -n 8192");
 
 app.configure(function() {
     app.use(express.logger());
@@ -44,7 +46,7 @@ function loadPlugins() {
         for (var i=0; i < files.length; i++) {            
             var plugin = require('./plugins/' + files[i] + '/plugin.js').initialize();
             var pluginInfo = plugin.pluginInfos;
-            loadedPlugins[pluginInfo[0]] = plugin;
+            loadedPlugins[pluginInfo['name']] = plugin;
         }
     });
 }
@@ -104,45 +106,22 @@ app.get('/admin/template', adminFilter.verifyLogin, adminController.templateInde
 
 function runPlugin(req, res, next) {
     req.events = events;
-    sys.puts('running plugin')
     Step(
         function () {
-            sys.puts('run 2')
             for(var p in loadedPlugins) {
-                sys.puts('run 3')
-                //calling this.parallel() means that we dump the results of each call
-                //in order into tne next functions arguments array.
-                sys.puts('loadedPlugins[p]: ' + sys.inspect(loadedPlugins[p]));
                 loadedPlugins[p].run(req, res, this.parallel());
-                sys.puts('this: ' + sys.inspect(this))
             }
-            sys.puts('run 4')
         },
         function(err) {
-            sys.puts('run 6')
-            // if(err) throw err;
-            sys.puts('run 7')
-
-            // we want to create an  array of plugins aligned with the remaining
-            // arguments in this function. To do this, I created a 1 element array
-            // and pushed the remaining names in order onto that array. Then, when
-            // we iterate through the arguments list, I can use the same index
-            // for both arrays to assemble my final result.
             var pluginNames = [];
             for(var p in loadedPlugins) {
-                sys.puts('run 7')
                 pluginNames.push(p);
             }
-            
-            sys.puts('run 8')
 
             req.plugins = {};
             for(var p in loadedPlugins) {
-                sys.puts('in loop!!!')
                 req.plugins[p] = arguments[0];
             }
-            sys.puts('plugins: ' + sys.inspect(req.plugins));
-            sys.puts('run 9')
 
             req.events.emit('pluginsAreLoaded');
             next();
@@ -151,6 +130,9 @@ function runPlugin(req, res, next) {
     next();
 }
 
+// process.on('uncaughtException', function (err) {
+//   console.log('Caught exception: ' + err);
+// });
 
 // Posts routes
 app.get("/", runPlugin, postsController.index);

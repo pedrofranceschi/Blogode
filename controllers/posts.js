@@ -7,11 +7,10 @@ exports.index = function(req, res){
   
   posts.getPosts(10, function (posts){
     req.events.on('pluginsAreLoaded', function() {
-      sys.puts('req.plugins_:' + sys.inspect(req.plugins))
       if(req.plugins != undefined) {
-      res.render('posts/index', {
-        locals: { 'posts': posts }
-      });
+        res.render('posts/index', {
+          locals: { 'posts': posts }
+        });
       }
     });
   });
@@ -33,17 +32,21 @@ exports.search = function(req, res){
   
   if(!req.param('keywords')) {
     req.events.on('pluginsAreLoaded', function() {
-      res.render('posts/search', {
-        locals: { 'posts': undefined }
-      });
+      if(req.plugins != undefined) {
+        res.render('posts/search', {
+          locals: { 'posts': undefined }
+        });
+      }
     });
   }
     
   posts.searchForPosts(req.param('keywords'), function(searchResults){
     req.events.on('pluginsAreLoaded', function() {
-      res.render('posts/search', {
-        locals: { 'posts': searchResults }
-      });
+      if(req.plugins != undefined) {
+        res.render('posts/search', {
+          locals: { 'posts': searchResults }
+        });
+      }
     });
   });
   
@@ -55,9 +58,11 @@ exports.show = function(req, res){
   posts.getPost(req.param('id'), function(post) {
     comments.getCommentsOfPost(req.param('id'), function(comments){
       req.events.on('pluginsAreLoaded', function() {
-        res.render('posts/show', {
-          locals: { 'post': post, 'comments': comments }
-        });
+        if(req.plugins != undefined) {
+          res.render('posts/show', {
+            locals: { 'post': post, 'comments': comments }
+          });
+        }
       });
     });
   });
