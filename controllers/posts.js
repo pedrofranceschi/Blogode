@@ -8,6 +8,7 @@ exports.index = function(req, res){
   posts.getPosts(10, function (posts){
     req.events.on('pluginsAreLoaded', function() {
       if(req.plugins != undefined) {
+          req.events = undefined;
         res.render('posts/index', {
           locals: { 'posts': posts }
         });

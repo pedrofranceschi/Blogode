@@ -1,0 +1,4 @@
+Recent tweets with '<%= hashtag %>'<br/><br/>
+<% for(var i=0; i < data.length; i++) { %>
+	@<%= data[i]["from_user"] %>: <%= data[i]["text"] %><br/>
+<% } %>

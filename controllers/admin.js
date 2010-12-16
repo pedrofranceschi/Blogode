@@ -3,7 +3,14 @@ var sys = require("sys")
   
 var users = require('../lib/users')
   , posts = require('../lib/posts')
-  , config = require('../lib/config');
+  , config = require('../lib/config')
+  , pluginsLib = require('../lib/plugins');
+  
+var plugins = {};
+
+exports.setPlugins = function(plugins_) {
+    plugins = plugins_;
+}
   
 exports.index = function(req, res){
   // return admin panel
@@ -238,4 +245,26 @@ exports.applyTemplate = function(req, res) {
             });
         });
     });
+};
+
+exports.pluginIndex = function(req, res) {
+    // returns the plugin manager
+    
+    pluginsLib.getPluginConfigValues(function(data){
+        res.render('admin/plugins/index', {
+            layout: false,
+            locals: { 'plugins': plugins, 'pluginValues': data }
+        });
+    });
+};
+
+exports.setConfigVariables = function(req, res) {
+    var plugin = plugins[req.param("call_name")];
+    var pluginConfig = {};
+    for(var i=0; i < plugin.configVariables.length; i++) {
+        pluginConfig[plugin.configVariables[i].access_name] = req.param(plugin.configVariables[i].access_name)
+    }
+    pluginsLib.setPluginConfigValues(req.param("call_name"), pluginConfig, function(callback){
+        res.redirect("/admin/plugins");
+    });    
 };

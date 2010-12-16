@@ -1,0 +1,15 @@
+<h1>Manage plugins</h1>
+
+<!-- { twitter_search: { pluginInfos: { call_name: 'twitter_search' , name: 'Twitter Search' , description: 'A plugin to show the last tweets about something' , creator_name: 'Pedro Franceschi' , creator_email: 'pedrohfranceschi@gmail.com' , version: '0.1' } , configVariables: [ [Object] ] , run: [Function] } } -->
+
+<% for(p in plugins) { %>
+	<h3><%= plugins[p].pluginInfos["name"] %></h3>
+	<form method="post" action="/admin/plugins/set_config_variables">
+		<input type="hidden" name="call_name" value="<%= plugins[p].pluginInfos['call_name'] %>">
+		<% for(var i=0; i < plugins[p].configVariables.length; i++) { %>
+			<b><%= plugins[p].configVariables[i]['name'] %></b> (<%= plugins[p].configVariables[i]['description'] %>): <input type="<%= plugins[p].configVariables[i]['field_type'] %>" name="<%= plugins[p].configVariables[i]['access_name'] %>" value="<%= pluginValues[plugins[p].pluginInfos['call_name']][plugins[p].configVariables[i]['access_name']] %>"/><br/>
+		<% } %>
+		<br/>
+	 	<input type="submit" value="Save '<%= plugins[p].pluginInfos["name"] %>'" />
+	</form><br/><br/>
+<% } %>

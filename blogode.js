@@ -41,13 +41,16 @@ app.configure(function() {
 });
 
 var loadedPlugins = {};
+var pluginConfigVars = {};
 function loadPlugins() {
     fs.readdir('./plugins/', function(err, files) {
         for (var i=0; i < files.length; i++) {            
             var plugin = require('./plugins/' + files[i] + '/plugin.js').initialize();
             var pluginInfo = plugin.pluginInfos;
-            loadedPlugins[pluginInfo['name']] = plugin;
+            loadedPlugins[pluginInfo['call_name']] = plugin;
+            pluginConfigVars[pluginInfo['call_name']] = plugin.configVariables;
         }
+        adminController.setPlugins(loadedPlugins);
     });
 }
 
@@ -71,21 +74,6 @@ bayeux = new faye.NodeAdapter({
     timeout: 45
 });
 
-// Admin Routes
-app.get("/admin", adminFilter.verifyLogin, adminController.index);
-app.get("/admin/login", adminController.login);
-app.post("/admin/authenticate", adminController.authenticate);
-app.get('/admin/posts', adminFilter.verifyLogin, adminController.posts);
-app.get('/admin/posts/new', adminFilter.verifyLogin, adminController.newPost);
-app.get('/admin/posts/:id', adminFilter.verifyLogin, adminController.showPost);
-app.post('/admin/posts/save', adminFilter.verifyLogin, adminController.createPost);
-app.put('/admin/posts/:id', adminFilter.verifyLogin, adminController.updatePost);
-app.get('/admin/posts/destroy/:id', adminFilter.verifyLogin, adminController.destroyPost);
-app.post('/admin/template/apply_template', adminFilter.verifyLogin, adminController.applyTemplate);
-app.put('/admin/template/set_file_content', adminFilter.verifyLogin, adminController.setTemplateFileContent);
-app.get('/admin/template/get_file_content', adminFilter.verifyLogin, adminController.getTemplateFileContent);
-app.get('/admin/template', adminFilter.verifyLogin, adminController.templateIndex);
-
 function runPlugin(req, res, next) {
     if(req.events != events) {
         req.events = events;
@@ -99,7 +87,7 @@ function runPlugin(req, res, next) {
                 var par = this.parallel();
                 setTimeout(function() {
                     loadedPlugins[p].run(req, res, par);
-                }, 10);
+                }, 90);
                 counter += 1;
             }
         },
@@ -115,6 +103,23 @@ function runPlugin(req, res, next) {
     );
     next();
 }
+
+// Admin Routes
+app.get("/admin", adminFilter.verifyLogin, adminController.index);
+app.get("/admin/login", adminController.login);
+app.post("/admin/authenticate", adminController.authenticate);
+app.get('/admin/posts', adminFilter.verifyLogin, adminController.posts);
+app.get('/admin/posts/new', adminFilter.verifyLogin, adminController.newPost);
+app.get('/admin/posts/:id', adminFilter.verifyLogin, adminController.showPost);
+app.post('/admin/posts/save', adminFilter.verifyLogin, adminController.createPost);
+app.put('/admin/posts/:id', adminFilter.verifyLogin, adminController.updatePost);
+app.get('/admin/posts/destroy/:id', adminFilter.verifyLogin, adminController.destroyPost);
+app.post('/admin/template/apply_template', adminFilter.verifyLogin, adminController.applyTemplate);
+app.put('/admin/template/set_file_content', adminFilter.verifyLogin, adminController.setTemplateFileContent);
+app.get('/admin/template/get_file_content', adminFilter.verifyLogin, adminController.getTemplateFileContent);
+app.get('/admin/template', adminFilter.verifyLogin, adminController.templateIndex);
+app.get('/admin/plugins', adminFilter.verifyLogin, adminController.pluginIndex);
+app.post('/admin/plugins/set_config_variables', adminFilter.verifyLogin, adminController.setConfigVariables);
 
 // Posts routes
 app.get("/", runPlugin, postsController.index);
