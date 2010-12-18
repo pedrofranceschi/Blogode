@@ -36,6 +36,7 @@ exports.initialize = function () {
                     
                     var difference = Math.floor((d.getTime() - cacheCreation)/1000);
                     if(difference <= 60 && lastData != undefined && lastHashtag == hashTag) {
+                        d = undefined;
                         callback(lastData);
                     } else {
                         lastHashtag = hashTag;
@@ -54,6 +55,10 @@ exports.initialize = function () {
                             response.on('end', function () {
                                 var parser = JSON.parse(unescape(responseData));
                                 lastData = parser["results"];
+                                google = undefined;
+                                request = undefined;
+                                responseData = undefined;
+                                d = undefined;
                                 callback(lastData);
                             });
                         });

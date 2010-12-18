@@ -1,121 +1,121 @@
 var sys = require("sys")
-  , fs = require("fs");
-  
+, fs = require("fs");
+
 var users = require('../lib/users')
-  , posts = require('../lib/posts')
-  , config = require('../lib/config')
-  , pluginsLib = require('../lib/plugins');
-  
+, posts = require('../lib/posts')
+, config = require('../lib/config')
+, pluginsLib = require('../lib/plugins');
+
 var plugins = {};
 
 exports.setPlugins = function(plugins_) {
     plugins = plugins_;
 }
-  
-exports.index = function(req, res){
-  // return admin panel
 
-  res.render('admin/panel', {
-    layout: false
-  });
+exports.index = function(req, res){
+    // return admin panel
+    
+    res.render('admin/panel', {
+        layout: false
+    });
 };
 
 exports.login = function(req, res){
-  // return admin login page
-    
-  if(req.session.username) {
-    return res.redirect("/admin");
-  }
-    
-  res.render('admin/login', {
-    layout: false
-  });
+    // return admin login page
+
+    if(req.session.username) {
+        return res.redirect("/admin");
+    }
+
+    res.render('admin/login', {
+        layout: false
+    });
 };
 
 exports.authenticate = function(req, res){
-  // verifies admin credentials
-    
-  if(!req.param('username') || !req.param('password')) {
-    res.redirect('/admin/login')
-  }
-    
-  users.verifyCredentials(req.param('username'), req.param('password'), function(isValidUser, userId){
-    if(isValidUser) {
-      req.session.username = req.param('username');
-      req.session.user_id = userId;
+    // verifies admin credentials
+
+    if(!req.param('username') || !req.param('password')) {
+        res.redirect('/admin/login')
     }
-    res.redirect("/admin");
-  });
+
+    users.verifyCredentials(req.param('username'), req.param('password'), function(isValidUser, userId){
+        if(isValidUser) {
+            req.session.username = req.param('username');
+            req.session.user_id = userId;
+        }
+        res.redirect("/admin");
+    });
 };
 
 
 exports.posts = function(req, res) {
-  // return the list of posts (as admin)
+    // return the list of posts (as admin)
     
-  posts.getPosts(0, function (posts){
-      res.render('admin/posts/index', {
-      layout: false,
-      locals: { 'posts': posts }
+    posts.getPosts(0, function (posts){
+        res.render('admin/posts/index', {
+            layout: false,
+            locals: { 'posts': posts }
+        });
     });
-  });
 };
 
 exports.newPost = function(req, res) {
-  // return the formulary to create a new post
-    
-  res.render('admin/posts/new', {
-    layout: false
-  });
+    // return the formulary to create a new post
+
+    res.render('admin/posts/new', {
+        layout: false
+    });
 };
 
 exports.showPost = function(req, res) {
-  // return a post (to edit)
-    
-  posts.getPost(req.param('id'), function (post){
-    res.render('admin/posts/edit', {
-      layout: false,
-      locals: { 'post': post }
+    // return a post (to edit)
+
+    posts.getPost(req.param('id'), function (post){
+        res.render('admin/posts/edit', {
+            layout: false,
+            locals: { 'post': post }
+        });
     });
-  });
 };
 
 exports.createPost = function(req, res) {
-  // saves a post
-    
-  if(!req.param('title') || !req.param('body')) {
-    return res.redirect("/admin/posts/new");
-  }
-  posts.createPost(req.param('title'), req.param('body'), req.session.user_id, function(postId) {
-    return res.redirect('/admin/posts/' + postId);
-  });
+    // saves a post
+
+    if(!req.param('title') || !req.param('body')) {
+        return res.redirect("/admin/posts/new");
+    }
+    posts.createPost(req.param('title'), req.param('body'), req.session.user_id, function(postId) {
+        return res.redirect('/admin/posts/' + postId);
+    });
 };
 
 exports.updatePost = function(req, res) {
-  // updates a post
-    
-  if(!req.param('title') || !req.param('body')) {
-    return res.redirect("/admin/posts/new");
-  }
-  posts.updatePost(req.param('id'), req.param('title'), req.param('body'), function() {
-    return res.redirect('/admin/posts/' + req.param('id'));
-  });
+    // updates a post
+
+    if(!req.param('title') || !req.param('body')) {
+        return res.redirect("/admin/posts/new");
+    }
+    posts.updatePost(req.param('id'), req.param('title'), req.param('body'), function() {
+        return res.redirect('/admin/posts/' + req.param('id'));
+    });
 };
 
 exports.destroyPost = function(req, res) {
-  // destroys a post
-    
-  if(!req.param('id')) {
-    return res.redirect("/admin/posts/");
-  }
-  posts.destroyPost(req.param('id'), function () {
-    return res.redirect('/admin/posts/')
-  });
+    // destroys a post
+
+    if(!req.param('id')) {
+        return res.redirect("/admin/posts/");
+    }
+    posts.destroyPost(req.param('id'), function () {
+        return res.redirect('/admin/posts/')
+    });
 };
 
 
 exports.templateIndex = function(req, res) {
-    // returns the template file editor
-    
+    // returns the template file editor    
+
     config.getBlogConfigKeyValue('current_template', function(value) {
         var templateInfos = new Array();
         fs.readdir('./public/templates', function(err, files) {
@@ -123,16 +123,16 @@ exports.templateIndex = function(req, res) {
                 var content = fs.readFileSync('./public/templates/' + files[i] + '/info.json')
                 var templateParser = JSON.parse(content);
                 templateParser['template_folder_name'] = files[i];
-                
+
                 var isCurrentTheme = false;
                 if(value == files[i]) {
                     isCurrentTheme = true;
                 }
-                
+
                 templateParser['current_theme'] = isCurrentTheme;
                 templateInfos.push(templateParser);
             }
-            
+
             res.render('admin/template/index', {
                 layout: false,
                 locals: { 'template_infos': templateInfos }
@@ -143,7 +143,7 @@ exports.templateIndex = function(req, res) {
 
 exports.getTemplateFileContent = function(req, res) {
     // returns a template file content
-    
+
     var fileToRead = ""
     if(req.param('file_type') == 'layout') {
         fileToRead = "./views/layout.ejs";
@@ -156,24 +156,24 @@ exports.getTemplateFileContent = function(req, res) {
     } else {
         return res.send("File not found.");
     }
-    
+
     fs.readFile(fileToRead, function(err, content) {
         if (err) throw err;
         return res.send(content);
     });
-    
+
 };
 
 exports.setTemplateFileContent = function(req, res) {
     // sets a template file some content
-    
+
     if(req.param('content') == '' || req.param('content') == undefined) {
         return res.send("Content can't be blank!");
     }
-    
+
     var fileToWrite = ""
     var templateFileToWrite = ""
-    
+
     config.getBlogConfigKeyValue('current_template', function(value) {
         if(req.param('file_type') == 'layout') {
             fileToWrite = "./views/layout.ejs";
@@ -190,7 +190,7 @@ exports.setTemplateFileContent = function(req, res) {
         } else {
             return res.send("File not found.");
         }
-        
+
         fs.writeFile(fileToWrite, req.param('content'), function (err) {
             if (err) throw err;
             fs.writeFile(templateFileToWrite, req.param('content'), function (err) {
@@ -198,20 +198,20 @@ exports.setTemplateFileContent = function(req, res) {
                 return res.redirect('/admin/template')
             });
         });
-    
+
     });
-    
+
 };
 
 exports.applyTemplate = function(req, res) {
     // apply a template as the current template
-    
+
     if(req.param('name') == '' || req.param('name') == undefined) {
         return res.send("Template name can't be blank!");
     }
-    
+
     var templatePath = './public/templates/' + req.param('name');
-    
+
     fs.readFile(templatePath + '/info.json', function(err, content) {
         if (err) {
             if(err.message.indexOf("No such file or directory") >= 0) {
@@ -220,7 +220,7 @@ exports.applyTemplate = function(req, res) {
                 return res.send("Unknown error")
             }
         }
-        
+
         fs.readFile(templatePath + '/layout.html', function(err, content) {
             if (err) return res.send("Layout file not found");
             fs.writeFile('./views/layout.ejs', content, function (err) {
@@ -249,7 +249,7 @@ exports.applyTemplate = function(req, res) {
 
 exports.pluginIndex = function(req, res) {
     // returns the plugin manager
-    
+
     pluginsLib.getPluginConfigValues(function(data){
         res.render('admin/plugins/index', {
             layout: false,
@@ -259,6 +259,8 @@ exports.pluginIndex = function(req, res) {
 };
 
 exports.setConfigVariables = function(req, res) {
+    // sets a plugin's config variable(s)
+
     var plugin = plugins[req.param("call_name")];
     var pluginConfig = {};
     for(var i=0; i < plugin.configVariables.length; i++) {

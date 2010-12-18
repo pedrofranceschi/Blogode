@@ -14,8 +14,6 @@ var config = require('./lib/config')
   , adminFilter = require('./filters/admin');
   
 
-var events = new Events.EventEmitter();
-
 var app = express.createServer();
 
 var blogConfig;
@@ -75,8 +73,8 @@ bayeux = new faye.NodeAdapter({
 });
 
 function runPlugin(req, res, next) {
-    if(req.events != events) {
-        req.events = events;
+    if(req.events == undefined) {
+        req.events = new Events.EventEmitter();
     }
     var execOrder = new Array();
     Step(
@@ -90,6 +88,7 @@ function runPlugin(req, res, next) {
                 }, 90);
                 counter += 1;
             }
+            counter = 0;
         },
         function(err) {
             req.plugins = {};
@@ -97,6 +96,7 @@ function runPlugin(req, res, next) {
                 req.plugins[p] = arguments[execOrder[p]];
             }
             
+            execOrder = undefined;
             req.events.emit('pluginsAreLoaded');
             next();
         }
