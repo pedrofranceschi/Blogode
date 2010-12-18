@@ -22,7 +22,7 @@ exports.index = function(req, res){
 
 exports.login = function(req, res){
     // return admin login page
-
+    
     if(req.session.username) {
         return res.redirect("/admin");
     }

@@ -73,6 +73,7 @@ bayeux = new faye.NodeAdapter({
 });
 
 function runPlugin(req, res, next) {
+    req.session = undefined;
     if(req.events == undefined) {
         req.events = new Events.EventEmitter();
     }
