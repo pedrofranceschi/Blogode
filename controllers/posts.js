@@ -6,22 +6,13 @@ exports.index = function(req, res){
   // return posts list
   
   posts.getPosts(10, function (posts){
-    sys.puts('process.memoryUsage() 1: ' + sys.inspect(process.memoryUsage()));
     req.events.on('pluginsAreLoaded', function() {
-        sys.puts('process.memoryUsage() 2: ' + sys.inspect(process.memoryUsage()));
-      // if(req.plugins != undefined) {
-      //     req.plugins = undefined;
-      // }
-        
-        if(req.plugins != undefined) {
-            res.render('posts/index', {
-                locals: { 'posts': posts }
-            });
-            setTimeout(function () {
-                req.plugins = undefined;
-            }, 100);
-        }
-        
+      if(req.plugins != undefined) {
+          req.events = undefined;
+        res.render('posts/index', {
+          locals: { 'posts': posts }
+        });
+      }
     });
   });
   
