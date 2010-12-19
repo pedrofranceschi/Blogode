@@ -1,3 +1,4 @@
+<script src="/faye.js"></script>
 <script>
 
 $(document).ready(function() {
@@ -18,15 +19,70 @@ var client = new Faye.Client('/faye', {
 });
 
 client.subscribe('/<%= post.id %>/comments/bayeux', function(response) {
-	$("#comments_list").append("<div id=\"comment_" + response.id + "\">    " + 
-						   	   "	<h4>" + unescape(response.author_name) + "</h4>   " +
-						       "	<p>" + unescape(response.comment) + "</p>         " +
-						       "</div>");
+	// $("#comments_list").append("<div id=\"comment_" + response.id + "\">    " + 
+	// 					   	   "	<h4>" + unescape(response.author_name) + "</h4>   " +
+	// 					       "	<p>" + unescape(response.comment) + "</p>         " +
+	// 					       "</div>");
+	
+	$("#comments").append("<li>" + 
+						 "	<h3>" + unescape(response.author_name) + "</h3>" + 
+						 "  <small>" + unescape(response.created_at) + "</small>" + 
+						 "	<p>" + unescape(response.comment) + "</p>" + 
+						 "</li>")
+
 });
 
 </script>
 
-<h1><%= unescape(post.title) %></h1>
+<div class="post">
+	<h2><%= unescape(post.title) %></h2>
+	<div class="post-info">
+		by <%= post.user_name %><br/><br/>
+		<p><%= unescape(post.created_at) %></p>
+	</div>
+	<div class="post-entry">
+		<p><%- unescape(post.body) %></p>
+	</div>
+</div>
+	<!-- You can start editing here. -->
+	<div id="comments">
+		<h2>Comments</h2>
+		<ol class="commentlist">
+			<% for (var i=0; i < comments.length; i++) { %>
+				<li>
+					<h3><%= unescape(comments[i].author_name) %></h3>
+					<small><%= unescape(comments[i].created_at) %></small>
+					<p><%= unescape(comments[i].comment) %></p>
+				</li>
+				<br/>
+			<% } %>
+		</ol>
+	</div>
+	<hr/>
+	<div id="respond">
+		<h2>Leave a Reply</h2>
+		<form>
+			<p class="commentinput push">
+				<label for="author">Name (required)</label>
+				<input type="text" name="author" id="author_name" value="" size="22" tabindex="1"/>
+			</p>
+			<p class="commentinput push">
+				<label for="email">Mail (not published) (required)</label>
+				<input type="text" name="email" id="author_email" value="" size="22" tabindex="2"/>
+			</p>
+			<p class="commenttext">
+				<label for="comment">Your Comment</label>
+				<textarea name="comment" id="comment" rows="10" cols="10" tabindex="4"></textarea>
+			</p>
+			<p>
+				<button name="submit" type="submit" id="submit" tabindex="5">Submit Comment</button>
+				<button name="reset" type="reset" id="reset" tabindex="6">Reset Form</button>
+			</p>
+		</form>
+	</div>
+	<hr/>
+
+<!-- <h1><%= unescape(post.title) %></h1>
 <p>by <%= post.user_name %></p>
 <p><%- unescape(post.body) %></p>
 
@@ -52,4 +108,4 @@ client.subscribe('/<%= post.id %>/comments/bayeux', function(response) {
 	<textarea id="comment" cols="30" rows="5" placeholder="Your comment"></textarea><br/><br/>
 	
 	<input type="submit" id="submit"/>
-</form>
+</form> -->

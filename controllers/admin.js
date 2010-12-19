@@ -270,3 +270,26 @@ exports.setConfigVariables = function(req, res) {
         res.redirect("/admin/plugins");
     });    
 };
+
+exports.blogSettingsIndex = function(req, res) {
+    config.getAllBlogConfigKeyValues(function(configData) {
+        res.render('admin/settings/index', {
+            layout: false,
+            locals: { 'configKeys': configData }
+        });
+    });
+};
+
+exports.saveBlogSettings = function(req, res) {
+    // /admin/settings/save
+    
+    config.getAllBlogConfigKeyValues(function(configData) {
+        var objectToWrite = {};
+        for(key in configData) {
+            objectToWrite[key] = req.param(key);
+        }
+        config.setAllBlogConfigKeyValues(objectToWrite, function(){
+            return res.redirect('/admin/settings')
+        });
+    });
+}

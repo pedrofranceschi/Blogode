@@ -121,6 +121,8 @@ app.get('/admin/template/get_file_content', adminFilter.verifyLogin, adminContro
 app.get('/admin/template', adminFilter.verifyLogin, adminController.templateIndex);
 app.get('/admin/plugins', adminFilter.verifyLogin, adminController.pluginIndex);
 app.post('/admin/plugins/set_config_variables', adminFilter.verifyLogin, adminController.setConfigVariables);
+app.get('/admin/settings', adminFilter.verifyLogin, adminController.blogSettingsIndex);
+app.post('/admin/settings/save', adminFilter.verifyLogin, adminController.saveBlogSettings);
 
 // Posts routes
 app.get("/", runPlugin, postsController.index);

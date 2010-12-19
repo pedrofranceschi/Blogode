@@ -74,12 +74,14 @@ exports.saveComment = function(req, res){
     if(!req.param('id') || !req.param('author_name') || !req.param('author_email') || !req.param('comment')) {
         return res.send("Missing parameters.");
     }
+    
+    var d = new Date();
 
-    comments.saveComment(req.param('id'), req.param('author_name'), req.param('author_email'), req.param('comment'), function(commentId) {
+    comments.saveComment(req.param('id'), req.param('author_name'), req.param('author_email'), req.param('comment'), function(comment) {
         bayeux.getClient().publish('/' + req.param('id') + '/comments/bayeux', {
-            id: commentId,
             author_name: req.param('author_name'),
-            comment: req.param('comment')
+            comment: req.param('comment'),
+            created_at: sys.inspect(comment.created_at)
         });
 
         return res.send("OK");
