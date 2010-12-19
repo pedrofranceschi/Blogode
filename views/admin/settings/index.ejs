@@ -1,0 +1,12 @@
+<h1>Blog settings</h1>
+
+<form method="post" action="/admin/settings/save">
+	<% for(key in configKeys) { %>
+		<% if(key.indexOf("blog") >= 0) { %>
+			<b><%= key.replace(/_/g, " ").charAt(0).toUpperCase() + key.replace(/_/g, " ").slice(1) %></b>: <input type="text" name="<%= key %>" value="<%= configKeys[key] %>"><br/><br/>
+		<% } else { %>
+			<input type="hidden" name="<%= key %>" value="<%= configKeys[key] %>">
+		<% } %>
+	<% } %>
+	<input type="submit" value="Save">
+</form>

@@ -1,0 +1,19 @@
+<% if(posts != undefined) { %>
+	<% for (var i=0; i < posts.length; i++) { %>
+						
+		<div class="post">
+			<h2><a href="/<%= posts[i].id %>"><%= unescape(posts[i].title) %></a></h2>
+			<div class="post-info">
+				by <%= posts[i].user_name %><br/><br/>
+				<p><%= unescape(posts[i].created_at) %></p></div>
+				<div class="post-entry">
+					<% if(unescape(posts[i].body).indexOf("###") >= 0) { %>
+						<p><%- unescape(posts[i].body).split("###")[0] %></p>
+					<% } else { %>
+						<p><%- unescape(posts[i].body) %></p>
+					<% } %>
+				</div>
+			</div>
+		
+	<% } %>
+<% } %>
