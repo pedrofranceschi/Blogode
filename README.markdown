@@ -19,7 +19,6 @@ TODO
 * Refactor with Tests
 * Add other databases
 * Implement posts sharing for social networks (Twitter and Facebook)
-* Implement plugins API
 * Implement statistics
 
 License:

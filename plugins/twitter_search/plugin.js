@@ -44,7 +44,7 @@ exports.initialize = function () {
                         var responseData = "";
                         var google = http.createClient(80, 'search.twitter.com');
                         var request = google.request('GET', '/search.json?q=' + escape(hashtag) + '&rpp=5',
-                        {'host': 'search.twitter.com'});
+                        {'host': 'search.twitter.com', 'USER_AGENT': 'MyUserAgent'});
                         request.end();
                         request.on('response', function (response) {
                             response.setEncoding('utf8');
