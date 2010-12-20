@@ -64,6 +64,9 @@ app.dynamicHelpers({
     },
     plugins: function(req, res) {
         return req.plugins;
+    },
+    session: function(req, res) {
+        return req.session;
     }
 });
 
@@ -109,20 +112,27 @@ function runPlugin(req, res, next) {
 app.get("/admin", adminFilter.verifyLogin, adminController.index);
 app.get("/admin/login", adminController.login);
 app.post("/admin/authenticate", adminController.authenticate);
-app.get('/admin/posts', adminFilter.verifyLogin, adminController.posts);
-app.get('/admin/posts/new', adminFilter.verifyLogin, adminController.newPost);
-app.get('/admin/posts/:id', adminFilter.verifyLogin, adminController.showPost);
-app.post('/admin/posts/save', adminFilter.verifyLogin, adminController.createPost);
-app.put('/admin/posts/:id', adminFilter.verifyLogin, adminController.updatePost);
-app.get('/admin/posts/destroy/:id', adminFilter.verifyLogin, adminController.destroyPost);
-app.post('/admin/template/apply_template', adminFilter.verifyLogin, adminController.applyTemplate);
-app.put('/admin/template/set_file_content', adminFilter.verifyLogin, adminController.setTemplateFileContent);
-app.get('/admin/template/get_file_content', adminFilter.verifyLogin, adminController.getTemplateFileContent);
-app.get('/admin/template', adminFilter.verifyLogin, adminController.templateIndex);
-app.get('/admin/plugins', adminFilter.verifyLogin, adminController.pluginIndex);
-app.post('/admin/plugins/set_config_variables', adminFilter.verifyLogin, adminController.setConfigVariables);
-app.get('/admin/settings', adminFilter.verifyLogin, adminController.blogSettingsIndex);
-app.post('/admin/settings/save', adminFilter.verifyLogin, adminController.saveBlogSettings);
+app.get('/admin/posts', adminFilter.verifyLogin, adminFilter.verifyPostPermission, adminController.posts);
+app.get('/admin/posts/new', adminFilter.verifyLogin, adminFilter.verifyPostPermission, adminController.newPost);
+app.get('/admin/posts/:id', adminFilter.verifyLogin, adminFilter.verifyPostPermission, adminController.showPost);
+app.post('/admin/posts/save', adminFilter.verifyLogin, adminFilter.verifyPostPermission, adminController.createPost);
+app.put('/admin/posts/:id', adminFilter.verifyLogin, adminFilter.verifyPostPermission, adminController.updatePost);
+app.get('/admin/posts/destroy/:id', adminFilter.verifyLogin, adminFilter.verifyPostPermission, adminController.destroyPost);
+app.post('/admin/template/apply_template', adminFilter.verifyLogin, adminFilter.verifyTemplatePermission, adminController.applyTemplate);
+app.put('/admin/template/set_file_content', adminFilter.verifyLogin, adminFilter.verifyTemplatePermission, adminController.setTemplateFileContent);
+app.get('/admin/template/get_file_content', adminFilter.verifyLogin, adminFilter.verifyTemplatePermission, adminController.getTemplateFileContent);
+app.get('/admin/template', adminFilter.verifyLogin, adminFilter.verifyTemplatePermission, adminController.templateIndex);
+app.get('/admin/plugins', adminFilter.verifyLogin, adminFilter.verifyPluginPermission, adminController.pluginIndex);
+app.post('/admin/plugins/set_config_variables', adminFilter.verifyLogin, adminFilter.verifyPluginPermission, adminController.setConfigVariables);
+app.get('/admin/settings', adminFilter.verifyLogin, adminFilter.verifySettingsPermission, adminController.blogSettingsIndex);
+app.post('/admin/settings/save', adminFilter.verifyLogin, adminFilter.verifySettingsPermission, adminController.saveBlogSettings);
+app.get('/admin/users', adminFilter.verifyLogin, adminFilter.verifyUsersPermission, adminController.users);
+app.put('/admin/users/update', adminFilter.verifyLogin, adminFilter.verifyUsersPermission, adminController.updateUser);
+app.get('/admin/users/new', adminFilter.verifyLogin, adminFilter.verifyUsersPermission, adminController.newUser);
+app.post('/admin/users/save', adminFilter.verifyLogin, adminFilter.verifyUsersPermission, adminController.saveUser);
+app.get('/admin/users/destroy', adminFilter.verifyLogin, adminFilter.verifyUsersPermission, adminController.destroyUser);
+app.get('/admin/logout', adminFilter.verifyLogin, adminController.logout);
+app.get('/admin/not_allowed', adminFilter.verifyLogin, adminController.notAllowed);
 
 // Posts routes
 app.get("/", runPlugin, postsController.index);

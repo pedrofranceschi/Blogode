@@ -1,0 +1,17 @@
+<h1>New user</h1>
+
+<form action="/admin/users/save" method="post">	
+	Name: <input name="name" type="text" size="40"/><br/>
+	Description: <input type="text" name="description" size="40"/><br/>
+	E-Mail: <input type="text" name="email" size="40"/><br/>
+	Username: <input type="text" name="username" size="40"/><br/>
+	Password: <input type="password" name="password" size="40"/><br/><br/>
+	
+	<input type="checkbox" name="manage_posts" checked/>Manage posts<br/>
+	<input type="checkbox" name="manage_templates"/>Manage templates<br/>
+	<input type="checkbox" name="manage_plugins"/>Manage plugins<br/>
+	<input type="checkbox" name="manage_settings"/>Manage blog settings<br/>
+	<input type="checkbox" name="manage_users"/>Manage users<br/><br/>
+	
+	<input type="submit" value="Create user">
+</form>

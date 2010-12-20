@@ -39,10 +39,11 @@ exports.authenticate = function(req, res){
         res.redirect('/admin/login')
     }
 
-    users.verifyCredentials(req.param('username'), req.param('password'), function(isValidUser, userId){
+    users.verifyCredentials(req.param('username'), req.param('password'), function(isValidUser, userId, permissionLevel){
         if(isValidUser) {
             req.session.username = req.param('username');
             req.session.user_id = userId;
+            req.session.user_permission = permissionLevel;
         }
         res.redirect("/admin");
     });
@@ -292,4 +293,73 @@ exports.saveBlogSettings = function(req, res) {
             return res.redirect('/admin/settings')
         });
     });
-}
+};
+
+exports.logout = function(req, res) {
+    req.session.destroy();
+    
+    return res.redirect('/admin/login')
+};
+
+exports.notAllowed = function(req, res) {
+    res.render('admin/not_allowed', {
+        layout: false
+    });
+};
+
+exports.users = function(req, res) {
+    users.getUsers(function(users){    
+        res.render('admin/users/index', {
+            layout: false,
+            locals: { 'users': users }
+        });
+    });
+};
+
+exports.updateUser = function(req, res) {
+    if(!req.param('id')) {
+        return res.send("A user id is needed.");
+    }
+    
+    var permissionLevel = "";
+    
+    if(req.param('manage_posts') == 'on') { permissionLevel += 1; }
+    if(req.param('manage_templates') == 'on') { permissionLevel += 2; }
+    if(req.param('manage_plugins') == 'on') { permissionLevel += 3; }
+    if(req.param('manage_settings') == 'on') { permissionLevel += 4; }
+    if(req.param('manage_users') == 'on') { permissionLevel += 5; }
+    
+    users.updateUser(req.param('id'), permissionLevel, req.param('name'), req.param('description'), req.param('email'), req.param('username'), req.param('password'), function(){
+        return res.redirect('/admin/users')
+    });
+};
+
+exports.newUser = function(req, res) {
+    res.render('admin/users/new', {
+        layout: false
+    });
+};
+
+exports.saveUser = function(req, res) {
+    var permissionLevel = "";
+    
+    if(req.param('manage_posts') == 'on') { permissionLevel += 1; }
+    if(req.param('manage_templates') == 'on') { permissionLevel += 2; }
+    if(req.param('manage_plugins') == 'on') { permissionLevel += 3; }
+    if(req.param('manage_settings') == 'on') { permissionLevel += 4; }
+    if(req.param('manage_users') == 'on') { permissionLevel += 5; }
+    
+    users.createUser(permissionLevel, req.param('name'), req.param('description'), req.param('email'), req.param('username'), req.param('password'), function(){
+        return res.redirect('/admin/users')
+    });
+};
+
+exports.destroyUser = function(req, res) {
+    if(!req.param('id')) {
+        return res.send("A user id is needed.");
+    }
+    
+    users.destroyUser(req.param('id'), function(){
+        return res.redirect('/admin/users');
+    });
+};

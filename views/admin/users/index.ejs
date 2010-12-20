@@ -1,0 +1,36 @@
+<h1>Manage users</h1>
+
+<% for(var i=0; i < users.length; i++) { %>
+	<form action="/admin/users/update" method="post">
+		<input type="hidden" name="_method" value="put"/>
+		<input type="hidden" name="id" value="<%= users[i].id %>"/>
+		<h2><%= users[i].name %> (<%= users[i].username %>)</h2>
+		
+		Name: <input name="name" type="text" value="<%= users[i].name %>" size="40"/><br/>
+		Description: <input type="text" name="description" value="<%= users[i].description %>" size="40"/><br/>
+		E-Mail: <input type="text" name="email" value="<%= users[i].email %>" size="40"/><br/>
+		Username: <input type="text" name="username" value="<%= users[i].username %>" size="40"/><br/>
+		Password: <input type="password" name="password" value="<%= users[i].password %>" size="40"/><br/><br/>
+		
+		<input type="checkbox" name="manage_posts" <% if(users[i].permission_level.toString().indexOf("1") >= 0) { %>checked<% } %>/>Manage posts<br/>
+		<input type="checkbox" name="manage_templates" <% if(users[i].permission_level.toString().indexOf("2") >= 0) { %>checked<% } %>/>Manage templates<br/>
+		<input type="checkbox" name="manage_plugins" <% if(users[i].permission_level.toString().indexOf("3") >= 0) { %>checked<% } %>/>Manage plugins<br/>
+		<input type="checkbox" name="manage_settings" <% if(users[i].permission_level.toString().indexOf("4") >= 0) { %>checked<% } %>/>Manage blog settings<br/>
+		<input type="checkbox" name="manage_users" <% if(users[i].permission_level.toString().indexOf("5") >= 0) { %>checked<% } %>/>Manage users<br/><br/>
+		
+		<input type="submit" value="Save">
+	</form>
+	
+	<script type="text/javascript"> 
+	function confirmDelete() { 
+		return confirm("Are you sure you want to delete this user? There's NO undo for this action!");   
+	} 
+	</script> 
+	<form action="/admin/users/destroy" onsubmit="return confirmDelete();"> 
+		<input type="hidden" name="id" value="<%= users[i].id %>"/>
+		<input type="submit" name="delete" value="Delete user"/>
+	</form>
+<% } %>
+
+<br/>
+<a href="/admin/users/new">New user</a>
