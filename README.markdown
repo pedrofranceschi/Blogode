@@ -18,6 +18,8 @@ TODO
 ----
 * Refactor with Tests
 * Add other databases
+* Multiple pages
+* In-memory MySQL cache
 * Implement posts sharing for social networks (Twitter and Facebook)
 * Implement statistics
 

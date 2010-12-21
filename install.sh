@@ -1,7 +1,7 @@
 #!/bin/sh
 
 # install stuff to build node
-apt-get install build-essential libssl-dev python;
+apt-get install build-essential libssl-dev python libssl-dev curl;
 
 # download and compile node
 cd /tmp
@@ -16,17 +16,17 @@ make install
 curl http://npmjs.org/install.sh | sh
 
 # install blogode
-mkdir /var/www/
-cd /var/www/
-wget "https://github.com/pedrofranceschi/Blogode/zipball/master"
+mkdir /var/
+cd /var/
+wget "http://download.github.com/pedrofranceschi-Blogode-e3992af.zip"
 unzip pedrofranceschi-Blogode-*.zip
 rm *.zip
 mv pedrofranceschi-Blogode-* blogode/
 cd blogode
 
 # install all dependencies
-npm install express faye step mysql forever
+npm install ejs express faye step mysql forever
 
 # sets the default start script for blogode
-echo "#!/bin/sh\ncd /var/www/blogode/ && forever start blogode.js" > /usr/bin/start_blogode
+echo "#!/bin/sh\ncd /var/blogode/ && forever start blogode.js" > /usr/bin/start_blogode
 chmod +x /usr/bin/start_blogode

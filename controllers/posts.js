@@ -1,26 +1,62 @@
 var sys = require('sys')
 var posts = require('../lib/posts')
-, comments = require('../lib/comments');
+, comments = require('../lib/comments')
+, config = require('../lib/config');
+
+var postsPerPage;
+config.getBlogConfigKeyValue('blog_posts_per_page', function(value) {
+    postsPerPage = parseInt(value);
+});
 
 exports.index = function(req, res){
     // return posts list
-
-    posts.getPosts(10, function (posts){
-        req.events.on('pluginsAreLoaded', function() {
-            if(req.plugins != undefined) {
-                res.render('posts/index', {
-                    locals: { 'posts': posts }
-                });
-            }
+    
+    posts.getPosts(0, postsPerPage, function (posts_){
+        posts.getPostsIds(function(postsIds){
+            req.events.on('pluginsAreLoaded', function() {
+                if(req.plugins != undefined) {
+                    var totalPages = 0;
+                    if(postsIds.length <= postsPerPage) {
+                        totalPages = -1;
+                    }
+                    res.render('posts/index', {
+                        locals: { 'posts': posts_, currentPage:1, 'totalPages': totalPages }
+                    });
+                }
+            });
         });
     });
 
 };
 
+exports.showPage = function(req, res){
+    var pageNumber = parseInt(req.param('id'));
+    
+    if(pageNumber <= 1 || req.param('id') == undefined) {
+        return res.redirect('/');
+    }
+    
+    posts.getPostsIds(function(postsIds){
+        if(pageNumber-1 > postsIds.length/postsPerPage) {
+            return res.send("Page not found.");
+        }
+        var initialPost = postsIds[(postsPerPage*(pageNumber-1))-1].id
+        posts.getPosts(initialPost, postsPerPage, function (posts){
+            req.events.on('pluginsAreLoaded', function() {
+                if(req.plugins != undefined) {
+                    res.render('posts/index', {
+                        locals: { 'posts': posts, currentPage:pageNumber, totalPages:(postsIds.length/postsPerPage) }
+                    });
+                }
+            });
+        });
+    });
+};
+
 exports.feed = function(req, res){
     // return posts in XML format
 
-    posts.getPosts(10, function (postsResult){
+    posts.getPosts(0, 0, function (postsResult){
         posts.generatePostsXML(postsResult, function(xmlString) {
             return res.send(xmlString); 
         });

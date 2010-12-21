@@ -53,7 +53,7 @@ exports.authenticate = function(req, res){
 exports.posts = function(req, res) {
     // return the list of posts (as admin)
     
-    posts.getPosts(0, function (posts){
+    posts.getPosts(0, 0, function (posts){
         res.render('admin/posts/index', {
             layout: false,
             locals: { 'posts': posts }
