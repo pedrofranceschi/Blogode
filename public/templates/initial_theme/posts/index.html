@@ -1,4 +1,10 @@
 <% if(posts != undefined) { %>
+	<% if(currentPage != 1) { %>
+		<div align="center">
+			<h2>Page <%= currentPage %></h2>
+		</div>
+		<br/>
+	<% } %>
 	<% for (var i=0; i < posts.length; i++) { %>
 						
 		<div class="post">
@@ -14,6 +20,19 @@
 					<% } %>
 				</div>
 			</div>
+			<br/>
 		
+	<% } %>
+	
+	<% if(currentPage != 1) { %>
+		<div align="left">
+			<a href="/page/<%= currentPage-1 %>">Newer</a>
+		</div>
+	<% } %>
+	<br/>
+	<% if(currentPage < Math.ceil(totalPages) || totalPages > -1) { %>
+		<div align="right">
+			<a href="/page/<%= currentPage+1 %>">Oldest</a>
+		</div>
 	<% } %>
 <% } %>

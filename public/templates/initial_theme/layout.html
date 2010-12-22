@@ -12,7 +12,7 @@
 	<div id="wrapper">
 		<div id="header">
 			<h1><a href="<%= blogAddress %>"><%= blogName %></a></h1>
-			<div id="topsearch"><form method="get" id="searchform" action="http://wpthemes.blogohblog.net/"><input type="text" value="" name="s" id="s"/><button type="submit">Search</button></form></div>
+			<div id="topsearch"><form method="get" action="/search"><input type="text" value="" name="keywords"/><button type="submit">Search</button></form></div>
 		</div>
 		<div id="content">
 			<%- body %>

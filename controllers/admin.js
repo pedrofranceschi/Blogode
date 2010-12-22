@@ -4,7 +4,8 @@ var sys = require("sys")
 var users = require('../lib/users')
 , posts = require('../lib/posts')
 , config = require('../lib/config')
-, pluginsLib = require('../lib/plugins');
+, pluginsLib = require('../lib/plugins')
+, postsController = require('../controllers/posts');
 
 var plugins = {};
 
@@ -87,6 +88,7 @@ exports.createPost = function(req, res) {
         return res.redirect("/admin/posts/new");
     }
     posts.createPost(req.param('title'), req.param('body'), req.session.user_id, function(postId) {
+        postsController.destroyCache();
         return res.redirect('/admin/posts/' + postId);
     });
 };
@@ -98,6 +100,7 @@ exports.updatePost = function(req, res) {
         return res.redirect("/admin/posts/new");
     }
     posts.updatePost(req.param('id'), req.param('title'), req.param('body'), function() {
+        postsController.destroyCache();
         return res.redirect('/admin/posts/' + req.param('id'));
     });
 };
@@ -109,6 +112,7 @@ exports.destroyPost = function(req, res) {
         return res.redirect("/admin/posts/");
     }
     posts.destroyPost(req.param('id'), function () {
+        postsController.destroyCache();
         return res.redirect('/admin/posts/')
     });
 };

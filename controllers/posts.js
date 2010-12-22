@@ -8,10 +8,14 @@ config.getBlogConfigKeyValue('blog_posts_per_page', function(value) {
     postsPerPage = parseInt(value);
 });
 
+var postsCache;
+
+var self = this;
+
 exports.index = function(req, res){
     // return posts list
     
-    posts.getPosts(0, postsPerPage, function (posts_){
+    self._getPostsUsingCache(function(posts_) {
         posts.getPostsIds(function(postsIds){
             req.events.on('pluginsAreLoaded', function() {
                 if(req.plugins != undefined) {
@@ -26,8 +30,25 @@ exports.index = function(req, res){
             });
         });
     });
-
 };
+
+// cache functions
+exports._getPostsUsingCache = function(callback) {
+    if(postsCache == undefined) {
+        posts.getPosts(0, postsPerPage, function (posts_){
+            postsCache = posts_;
+            callback(posts_);
+        });
+    } else {
+        callback(postsCache);
+    }
+};
+
+exports.destroyCache = function() {
+    postsCache = undefined;
+}
+
+// normal functions
 
 exports.showPage = function(req, res){
     var pageNumber = parseInt(req.param('id'));

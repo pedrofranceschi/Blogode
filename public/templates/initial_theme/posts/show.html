@@ -1,20 +1,6 @@
 <script src="/faye.js"></script>
 <script>
 
-function calcTime(offset, time) {
-	nd = new Date(time + (3600000*offset));
-
-	return nd.toLocaleString();
-}
-
-<% 
-function calcTime(offset, time) {
-	nd = new Date(time + (3600000*offset));
-
-	return nd.toLocaleString();
-}
-%>
-
 $(document).ready(function() {
 	$("#submit").click(function() {		
 			$.ajax({  
@@ -40,7 +26,7 @@ client.subscribe('/<%= post.id %>/comments/bayeux', function(response) {
 	
 	$("#comments").append("<li>" + 
 						 "	<h3>" + unescape(response.author_name) + "</h3>" + 
-						 "  <small>" + calcTime(-3, comments[i].created_at) + "</small>" + 
+						 "  <small>" + response.created_at + "</small>" + 
 						 "	<p>" + unescape(response.comment) + "</p>" + 
 						 "</li>")
 
@@ -65,8 +51,7 @@ client.subscribe('/<%= post.id %>/comments/bayeux', function(response) {
 			<% for (var i=0; i < comments.length; i++) { %>
 				<li>
 					<h3><%= unescape(comments[i].author_name) %></h3>
-					<!-- calcTime(-3, comments[i].created_at) -->
-					<small><%= calcTime(-3, comments[i].created_at) %></small>
+					<small><%= comments[i].created_at %></small>
 					<p><%= unescape(comments[i].comment) %></p>
 				</li>
 				<br/>
