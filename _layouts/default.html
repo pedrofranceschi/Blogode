@@ -34,12 +34,35 @@
 		pre { background: #000; color: #fff; padding: 15px;}
     hr { border: 0; width: 80%; border-bottom: 1px solid #aaa}
     .footer { text-align:center; padding-top:30px; font-style: italic; }
+
+	#navigation_menu {
+		float:left;
+		margin-top:-30px;
+		margin-left:0px;
+	}
+	
+	#navigation_menu a {
+		color:#696969;
+		text-decoration:none;
+	}
+	
+	#navigation_menu a:hover {
+		text-decoration:underline;
+	}
+
 	</style>
 	
 </head>
 
 <body>
   <a href="http://github.com/pedrofranceschi/Blogode"><img style="position: absolute; top: 0; right: 0; border: 0;" src="http://s3.amazonaws.com/github/ribbons/forkme_right_darkblue_121621.png" alt="Fork me on GitHub" /></a>
+
+  <div id="navigation_menu">
+	<b>Navigation</b><br/>
+	
+	<a href="/">Home</a><br/>
+	<a href="/docs.html">Docs</a><br/>
+  </div>
 
   <div id="content" class="site">
 	{{ content }}
