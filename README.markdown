@@ -18,6 +18,9 @@ TODO
 ----
 * Refactor with Tests
 * Add other databases
+* Implement permission "can just edit his own posts".
+* Implement comment management
+* Implement initial configuration interface
 * Implement posts sharing for social networks (Twitter and Facebook)
 * Implement statistics
 

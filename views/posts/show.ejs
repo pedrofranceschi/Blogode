@@ -49,12 +49,14 @@ client.subscribe('/<%= post.id %>/comments/bayeux', function(response) {
 		<h2>Comments</h2>
 		<ol class="commentlist">
 			<% for (var i=0; i < comments.length; i++) { %>
+				<% if(comments[i] != undefined) { %>
 				<li>
 					<h3><%= unescape(comments[i].author_name) %></h3>
 					<small><%= comments[i].created_at %></small>
 					<p><%= unescape(comments[i].comment) %></p>
 				</li>
 				<br/>
+				<% } %>
 			<% } %>
 		</ol>
 	</div>
