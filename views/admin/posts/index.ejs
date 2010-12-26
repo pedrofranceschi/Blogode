@@ -1,5 +1,9 @@
 <h1>Manage posts</h1>
 
+<div align="right">
+	<a href="/admin/import">Import Wordpress posts</a>
+</div>
+
 <% if(posts != undefined) { %>
 	<% for (var i=0; i < posts.length; i++) { %>
 		<b><%= unescape(posts[i].title) %></b> (by <%= unescape(posts[i].user_name) %>) - <a href="/admin/posts/<%= posts[i].id %>">Edit</a> - <a href="/admin/posts/destroy/<%= posts[i].id %>">Delete</a><br/><br/>

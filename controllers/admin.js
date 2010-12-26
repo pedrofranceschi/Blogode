@@ -4,6 +4,7 @@ var sys = require("sys")
 var users = require('../lib/users')
 , posts = require('../lib/posts')
 , config = require('../lib/config')
+, importer = require("../lib/importer")
 , pluginsLib = require('../lib/plugins')
 , postsController = require('../controllers/posts');
 
@@ -87,7 +88,7 @@ exports.createPost = function(req, res) {
     if(!req.param('title') || !req.param('body')) {
         return res.redirect("/admin/posts/new");
     }
-    posts.createPost(req.param('title'), req.param('body'), req.session.user_id, function(postId) {
+    posts.createPost(req.param('title'), req.param('body'), req.session.user_id, 0, function(postId) {
         postsController.destroyCache();
         return res.redirect('/admin/posts/' + postId);
     });
@@ -353,7 +354,7 @@ exports.saveUser = function(req, res) {
     if(req.param('manage_settings') == 'on') { permissionLevel += 4; }
     if(req.param('manage_users') == 'on') { permissionLevel += 5; }
     
-    users.createUser(permissionLevel, req.param('name'), req.param('description'), req.param('email'), req.param('username'), req.param('password'), function(){
+    users.createUser(permissionLevel, req.param('name'), req.param('description'), req.param('email'), req.param('username'), req.param('password'), function(userId){
         return res.redirect('/admin/users')
     });
 };
@@ -365,5 +366,21 @@ exports.destroyUser = function(req, res) {
     
     users.destroyUser(req.param('id'), function(){
         return res.redirect('/admin/users');
+    });
+};
+
+exports.importer = function(req, res) {
+    res.render('admin/posts/import', {
+        layout: false
+    });
+};
+
+exports.saveImport = function(req, res) {
+    if(!req.param('xml')) {
+        return res.send("Missing parameters.");
+    }
+    postsController.destroyCache();
+    importer.importXMLDump(req.param('xml'), function(){
+        return res.redirect("/admin/posts");
     });
 };

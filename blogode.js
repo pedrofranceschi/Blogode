@@ -118,6 +118,8 @@ app.get('/admin/posts/:id', adminFilter.verifyLogin, adminFilter.verifyPostPermi
 app.post('/admin/posts/save', adminFilter.verifyLogin, adminFilter.verifyPostPermission, adminController.createPost);
 app.put('/admin/posts/:id', adminFilter.verifyLogin, adminFilter.verifyPostPermission, adminController.updatePost);
 app.get('/admin/posts/destroy/:id', adminFilter.verifyLogin, adminFilter.verifyPostPermission, adminController.destroyPost);
+app.get('/admin/import', adminFilter.verifyLogin, adminFilter.verifyPostPermission, adminController.importer);
+app.post('/admin/import/save', adminFilter.verifyLogin, adminFilter.verifyPostPermission, adminController.saveImport);
 app.post('/admin/template/apply_template', adminFilter.verifyLogin, adminFilter.verifyTemplatePermission, adminController.applyTemplate);
 app.put('/admin/template/set_file_content', adminFilter.verifyLogin, adminFilter.verifyTemplatePermission, adminController.setTemplateFileContent);
 app.get('/admin/template/get_file_content', adminFilter.verifyLogin, adminFilter.verifyTemplatePermission, adminController.getTemplateFileContent);
