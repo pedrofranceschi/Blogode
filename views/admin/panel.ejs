@@ -5,17 +5,21 @@ Admin panel.<br/><br/>
 <% } %>
 
 <% if(session.user_permission.toString().indexOf("2") >= 0) { %>
-	<a href="/admin/template">Manage template</a><br/><br/>
+	<a href="/admin/comments">Manage comments</a><br/><br/>
 <% } %>
 
 <% if(session.user_permission.toString().indexOf("3") >= 0) { %>
-	<a href="/admin/plugins">Manage plugins</a><br/><br/>
+	<a href="/admin/template">Manage template</a><br/><br/>
 <% } %>
 
 <% if(session.user_permission.toString().indexOf("4") >= 0) { %>
-	<a href="/admin/users">Manage users</a><br/><br/>
+	<a href="/admin/plugins">Manage plugins</a><br/><br/>
 <% } %>
 
 <% if(session.user_permission.toString().indexOf("5") >= 0) { %>
+	<a href="/admin/users">Manage users</a><br/><br/>
+<% } %>
+
+<% if(session.user_permission.toString().indexOf("6") >= 0) { %>
 	<a href="/admin/settings">Blog settings</a><br/><br/>
 <% } %>

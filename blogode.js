@@ -133,6 +133,8 @@ app.put('/admin/users/update', adminFilter.verifyLogin, adminFilter.verifyUsersP
 app.get('/admin/users/new', adminFilter.verifyLogin, adminFilter.verifyUsersPermission, adminController.newUser);
 app.post('/admin/users/save', adminFilter.verifyLogin, adminFilter.verifyUsersPermission, adminController.saveUser);
 app.get('/admin/users/destroy', adminFilter.verifyLogin, adminFilter.verifyUsersPermission, adminController.destroyUser);
+app.get('/admin/comments', adminFilter.verifyLogin, adminFilter.verifyCommentPermission, adminController.comments);
+app.get('/admin/comments/destroy', adminFilter.verifyLogin, adminFilter.verifyCommentPermission, adminController.destroyComment)
 app.get('/admin/logout', adminFilter.verifyLogin, adminController.logout);
 app.get('/admin/not_allowed', adminFilter.verifyLogin, adminController.notAllowed);
 

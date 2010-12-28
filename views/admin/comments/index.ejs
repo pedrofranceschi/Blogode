@@ -1,0 +1,9 @@
+<h1>Manage comments</h1>
+
+<% for(var i=0; i < comments.length; i++) { %>
+	<b><%= unescape(comments[i].author_name) %></b> (<%= unescape(comments[i].author_email) %>)<br/>
+	<i><%= comments[i].created_at %></i><br/>
+	<%- unescape(comments[i].comment) %><br/>
+	<a href="/admin/comments/destroy?id=<%= comments[i].id %>">Destroy</a>
+	<br/><br/>
+<% } %>

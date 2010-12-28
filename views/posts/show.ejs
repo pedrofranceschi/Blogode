@@ -53,7 +53,7 @@ client.subscribe('/<%= post.id %>/comments/bayeux', function(response) {
 				<li>
 					<h3><%= unescape(comments[i].author_name) %></h3>
 					<small><%= comments[i].created_at %></small>
-					<p><%= unescape(comments[i].comment) %></p>
+					<p><%- unescape(comments[i].comment) %></p>
 				</li>
 				<br/>
 				<% } %>

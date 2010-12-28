@@ -35,7 +35,7 @@ exports.index = function(req, res){
 // cache functions
 exports._getPostsUsingCache = function(callback) {
     if(postsCache == undefined) {
-        posts.getPosts(0, postsPerPage, function (posts_){
+        posts.getPosts(0, postsPerPage, function (err, posts_){
             postsCache = posts_;
             callback(posts_);
         });
@@ -62,7 +62,7 @@ exports.showPage = function(req, res){
             return res.send("Page not found.");
         }
         var initialPost = postsIds[(postsPerPage*(pageNumber-1))-1].id
-        posts.getPosts(initialPost, postsPerPage, function (posts){
+        posts.getPosts(initialPost, postsPerPage, function (err, posts){
             req.events.on('pluginsAreLoaded', function() {
                 if(req.plugins != undefined) {
                     res.render('posts/index', {
@@ -77,7 +77,7 @@ exports.showPage = function(req, res){
 exports.feed = function(req, res){
     // return posts in XML format
 
-    posts.getPosts(0, 0, function (postsResult){
+    posts.getPosts(0, 0, function (err, postsResult){
         posts.generatePostsXML(postsResult, function(xmlString) {
             return res.send(xmlString); 
         });

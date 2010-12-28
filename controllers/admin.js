@@ -4,6 +4,7 @@ var sys = require("sys")
 var users = require('../lib/users')
 , posts = require('../lib/posts')
 , config = require('../lib/config')
+, comments = require('../lib/comments')
 , importer = require("../lib/importer")
 , pluginsLib = require('../lib/plugins')
 , postsController = require('../controllers/posts');
@@ -55,7 +56,7 @@ exports.authenticate = function(req, res){
 exports.posts = function(req, res) {
     // return the list of posts (as admin)
     
-    posts.getPosts(0, 0, function (posts){
+    posts.getPosts(0, 0, function (err, posts){
         res.render('admin/posts/index', {
             layout: false,
             locals: { 'posts': posts }
@@ -329,10 +330,11 @@ exports.updateUser = function(req, res) {
     var permissionLevel = "";
     
     if(req.param('manage_posts') == 'on') { permissionLevel += 1; }
-    if(req.param('manage_templates') == 'on') { permissionLevel += 2; }
-    if(req.param('manage_plugins') == 'on') { permissionLevel += 3; }
-    if(req.param('manage_settings') == 'on') { permissionLevel += 4; }
-    if(req.param('manage_users') == 'on') { permissionLevel += 5; }
+    if(req.param('manage_comments') == 'on') { permissionLevel += 2; }
+    if(req.param('manage_templates') == 'on') { permissionLevel += 3; }
+    if(req.param('manage_plugins') == 'on') { permissionLevel += 4; }
+    if(req.param('manage_settings') == 'on') { permissionLevel += 5; }
+    if(req.param('manage_users') == 'on') { permissionLevel += 6; }
     
     users.updateUser(req.param('id'), permissionLevel, req.param('name'), req.param('description'), req.param('email'), req.param('username'), req.param('password'), function(){
         return res.redirect('/admin/users')
@@ -349,10 +351,11 @@ exports.saveUser = function(req, res) {
     var permissionLevel = "";
     
     if(req.param('manage_posts') == 'on') { permissionLevel += 1; }
-    if(req.param('manage_templates') == 'on') { permissionLevel += 2; }
-    if(req.param('manage_plugins') == 'on') { permissionLevel += 3; }
-    if(req.param('manage_settings') == 'on') { permissionLevel += 4; }
-    if(req.param('manage_users') == 'on') { permissionLevel += 5; }
+    if(req.param('manage_comments') == 'on') { permissionLevel += 2; }
+    if(req.param('manage_templates') == 'on') { permissionLevel += 3; }
+    if(req.param('manage_plugins') == 'on') { permissionLevel += 4; }
+    if(req.param('manage_settings') == 'on') { permissionLevel += 5; }
+    if(req.param('manage_users') == 'on') { permissionLevel += 6; }
     
     users.createUser(permissionLevel, req.param('name'), req.param('description'), req.param('email'), req.param('username'), req.param('password'), function(userId){
         return res.redirect('/admin/users')
@@ -382,5 +385,24 @@ exports.saveImport = function(req, res) {
     postsController.destroyCache();
     importer.importXMLDump(req.param('xml'), function(){
         return res.redirect("/admin/posts");
+    });
+};
+
+exports.comments = function(req, res) {
+    comments.getComments(0, 0, function(comments){
+        res.render('admin/comments/index', {
+            layout: false,
+            locals: { 'comments': comments }
+        });
+    });
+};
+
+exports.destroyComment = function(req, res) {
+    if(!req.param('id')) {
+        return res.send("A comment id is needed");
+    }
+    
+    comments.destroyComment(req.param('id'), function(){
+        return res.redirect('/admin/comments');
     });
 };
