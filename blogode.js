@@ -153,7 +153,7 @@ app.get('/admin/not_allowed', adminFilter.verifyLogin, adminController.notAllowe
 
 // Posts routes
 app.get("/", runPlugin, postsController.index);
-app.get("/pages/:id", runPlugin, pagesController.showPage);
+app.get("/pages/:name", runPlugin, pagesController.showPage);
 app.get("/page/:id", runPlugin, postsController.showPage);
 app.get("/feed", postsController.feed);
 app.get("/search", runPlugin, postsController.search);

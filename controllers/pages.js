@@ -26,11 +26,11 @@ exports.getPagesCache = function() {
 // }
 
 exports.showPage = function(req, res) {
-    if(!req.param('id')) {
+    if(!req.param('name')) {
         return res.send("A page ID is needed.")
     }
     
-    pages.getPage(req.param('id'), function(page){
+    pages.getPageByLinkName(req.param('name'), function(page){
         req.events.on('pluginsAreLoaded', function() {
             res.render('pages/show', {
                 locals: { 'page': page }
