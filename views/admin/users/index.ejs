@@ -14,10 +14,11 @@
 		
 		<input type="checkbox" name="manage_posts" <% if(users[i].permission_level.toString().indexOf("1") >= 0) { %>checked<% } %>/>Manage posts<br/>
 		<input type="checkbox" name="manage_comments" <% if(users[i].permission_level.toString().indexOf("2") >= 0) { %>checked<% } %>/>Manage comments<br/>
-		<input type="checkbox" name="manage_templates" <% if(users[i].permission_level.toString().indexOf("3") >= 0) { %>checked<% } %>/>Manage templates<br/>
-		<input type="checkbox" name="manage_plugins" <% if(users[i].permission_level.toString().indexOf("4") >= 0) { %>checked<% } %>/>Manage plugins<br/>
-		<input type="checkbox" name="manage_settings" <% if(users[i].permission_level.toString().indexOf("5") >= 0) { %>checked<% } %>/>Manage blog settings<br/>
-		<input type="checkbox" name="manage_users" <% if(users[i].permission_level.toString().indexOf("6") >= 0) { %>checked<% } %>/>Manage users<br/><br/>
+		<input type="checkbox" name="manage_pages" <% if(users[i].permission_level.toString().indexOf("3") >= 0) { %>checked<% } %>/>Manage pages<br/>
+		<input type="checkbox" name="manage_templates" <% if(users[i].permission_level.toString().indexOf("4") >= 0) { %>checked<% } %>/>Manage templates<br/>
+		<input type="checkbox" name="manage_plugins" <% if(users[i].permission_level.toString().indexOf("5") >= 0) { %>checked<% } %>/>Manage plugins<br/>
+		<input type="checkbox" name="manage_settings" <% if(users[i].permission_level.toString().indexOf("6") >= 0) { %>checked<% } %>/>Manage blog settings<br/>
+		<input type="checkbox" name="manage_users" <% if(users[i].permission_level.toString().indexOf("7") >= 0) { %>checked<% } %>/>Manage users<br/><br/>
 		
 		<input type="submit" value="Save">
 	</form>

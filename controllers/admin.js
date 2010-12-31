@@ -3,11 +3,13 @@ var sys = require("sys")
 
 var users = require('../lib/users')
 , posts = require('../lib/posts')
+, pages = require('../lib/pages')
 , config = require('../lib/config')
 , comments = require('../lib/comments')
 , importer = require("../lib/importer")
 , pluginsLib = require('../lib/plugins')
-, postsController = require('../controllers/posts');
+, postsController = require('../controllers/posts')
+, pagesController = require('../controllers/pages');
 
 var plugins = {};
 
@@ -331,10 +333,11 @@ exports.updateUser = function(req, res) {
     
     if(req.param('manage_posts') == 'on') { permissionLevel += 1; }
     if(req.param('manage_comments') == 'on') { permissionLevel += 2; }
-    if(req.param('manage_templates') == 'on') { permissionLevel += 3; }
-    if(req.param('manage_plugins') == 'on') { permissionLevel += 4; }
-    if(req.param('manage_settings') == 'on') { permissionLevel += 5; }
-    if(req.param('manage_users') == 'on') { permissionLevel += 6; }
+    if(req.param('manage_pages') == 'on') { permissionLevel += 3; }
+    if(req.param('manage_templates') == 'on') { permissionLevel += 4; }
+    if(req.param('manage_plugins') == 'on') { permissionLevel += 5; }
+    if(req.param('manage_settings') == 'on') { permissionLevel += 6; }
+    if(req.param('manage_users') == 'on') { permissionLevel += 7; }
     
     users.updateUser(req.param('id'), permissionLevel, req.param('name'), req.param('description'), req.param('email'), req.param('username'), req.param('password'), function(){
         return res.redirect('/admin/users')
@@ -352,10 +355,11 @@ exports.saveUser = function(req, res) {
     
     if(req.param('manage_posts') == 'on') { permissionLevel += 1; }
     if(req.param('manage_comments') == 'on') { permissionLevel += 2; }
-    if(req.param('manage_templates') == 'on') { permissionLevel += 3; }
-    if(req.param('manage_plugins') == 'on') { permissionLevel += 4; }
-    if(req.param('manage_settings') == 'on') { permissionLevel += 5; }
-    if(req.param('manage_users') == 'on') { permissionLevel += 6; }
+    if(req.param('manage_pages') == 'on') { permissionLevel += 3; }
+    if(req.param('manage_templates') == 'on') { permissionLevel += 4; }
+    if(req.param('manage_plugins') == 'on') { permissionLevel += 5; }
+    if(req.param('manage_settings') == 'on') { permissionLevel += 6; }
+    if(req.param('manage_users') == 'on') { permissionLevel += 7; }
     
     users.createUser(permissionLevel, req.param('name'), req.param('description'), req.param('email'), req.param('username'), req.param('password'), function(userId){
         return res.redirect('/admin/users')
@@ -404,5 +408,59 @@ exports.destroyComment = function(req, res) {
     
     comments.destroyComment(req.param('id'), function(){
         return res.redirect('/admin/comments');
+    });
+};
+
+exports.pages = function(req, res) {
+    pages.getPages(function(pages){
+        res.render('admin/pages/index', {
+            layout: false,
+            locals: { 'pages': pages }
+        });
+    });
+};
+
+exports.newPage = function(req, res) {
+    res.render('admin/pages/new', {
+        layout: false
+    });
+};
+
+exports.showPage = function(req, res) {
+    pages.getPage(req.param('id'), function (page){
+        res.render('admin/pages/edit', {
+            layout: false,
+            locals: { 'page': page }
+        });
+    });
+};
+
+exports.createPage = function(req, res) {
+    if(!req.param('title') || !req.param('body')) {
+        return res.redirect("/admin/pages/new");
+    }
+    pages.createPage(req.param('title'), req.param('body'), req.session.user_id, 0, function(postId) {
+        pagesController.updatePagesCache();
+        return res.redirect('/admin/pages/' + postId);
+    });
+};
+
+exports.updatePage = function(req, res) {
+    if(!req.param('title') || !req.param('body') || !req.param('id')) {
+        return res.redirect("/admin/pages/new");
+    }
+    pages.updatePage(req.param('id'), req.param('title'), req.param('body'), function() {
+        pagesController.updatePagesCache();
+        return res.redirect('/admin/pages/' + req.param('id'));
+    });
+};
+
+exports.destroyPage = function(req, res) {
+    if(!req.param('id')) {
+        return res.redirect("/admin/pages/");
+    }
+    pages.destroyPage(req.param('id'), function () {
+        pagesController.updatePagesCache();
+        return res.redirect('/admin/pages/')
     });
 };

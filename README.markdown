@@ -18,6 +18,8 @@ TODO
 ----
 * Refactor with Tests
 * Add other databases
+* Make everything RESTful
+* Javascript confirmation for destroy actions
 * Implement pages support
 * Implement permission "can just edit his own posts".
 * Implement initial configuration interface

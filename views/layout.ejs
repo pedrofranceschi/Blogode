@@ -33,6 +33,13 @@
 															</ul>
 														</li>
 														<li class="widget">
+															<h2>Pages</h2>
+															<% for(var i=0; i < pages.length; i++) { %>
+																<a href="/pages/<%= pages[i].id %>"><%= unescape(pages[i].title) %></a><br/>
+															<% } %>
+														</li>
+														<br/>
+														<li class="widget">
 															<%- plugins.twitter_search %>
 														</li>
 														<!-- <li class="widget"><h2>Categories</h2>

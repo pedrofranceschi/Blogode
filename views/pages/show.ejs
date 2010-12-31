@@ -1,0 +1,13 @@
+<div class="post">
+	<h2><%= unescape(page.title) %></h2>
+	<div class="post-info">
+		by <%= unescape(page.user_name) %><br/><br/>
+		<p><%= unescape(page.created_at) %></p>
+	</div>
+	<div class="post-entry">
+		<p><%- unescape(page.body) %></p>
+	</div>
+</div>
+	<!-- You can start editing here. -->
+	<hr/>
+	<hr/>

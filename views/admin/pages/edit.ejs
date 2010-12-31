@@ -28,15 +28,15 @@
 	});
 </script>
 
-<form method="post" action="/admin/posts/<%= post.id %>" id="createRoomForm">
+<form method="post" action="/admin/pages/<%= page.id %>" id="createRoomForm">
   <input type="hidden" name="_method" value="put" />
-	<h1>Edit Post</h1>
- 	Title: <input type="text" name="title" size="62" value="<%= unescape(post.title) %>"/><br/><br/>
+	<h1>Edit page</h1>
+ 	Title: <input type="text" name="title" size="62" value="<%= unescape(page.title) %>"/><br/><br/>
 	Body:<br/><br/>
 	
-	<textarea id="elm1" name="body" rows="15" cols="80" style="550px; height:300px;"><%= unescape(post.body) %></textarea>
+	<textarea id="elm1" name="body" rows="15" cols="80" style="550px; height:300px;"><%= unescape(page.body) %></textarea>
 	
-	<input type="hidden" name="id" value="<%= post.id %>"/><br/>
+	<input type="hidden" name="id" value="<%= page.id %>"/><br/>
 		
 	<br/><br/>
  	<input type="submit" id="submitButton" value="Submit" onClick="submitForm();"/>

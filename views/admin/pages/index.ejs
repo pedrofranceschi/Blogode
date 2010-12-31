@@ -1,0 +1,7 @@
+<h1>Manage pages</h1>
+
+<% for(var i=0; i < pages.length; i++) { %>
+	<b><%= unescape(pages[i].title) %></b> - <a href="/admin/pages/<%= pages[i].id %>">Edit</a> - <a href="/admin/pages/destroy/<%= pages[i].id %>">Delete</a><br/><br/>
+<% } %>
+
+<a href="/admin/pages/new">New page</a>
