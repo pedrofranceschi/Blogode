@@ -18,6 +18,7 @@ TODO
 ----
 * Refactor with Tests
 * Add other databases
+* Implement categories
 * Make everything RESTful
 * Implement other plugin actions
 * Javascript confirmation for destroy actions
