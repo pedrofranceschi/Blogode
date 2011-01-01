@@ -19,6 +19,7 @@ TODO
 * Refactor with Tests
 * Add other databases
 * Make everything RESTful
+* Implement other plugin actions
 * Javascript confirmation for destroy actions
 * Implement permission "can just edit his own posts".
 * Implement initial configuration interface

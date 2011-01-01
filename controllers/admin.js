@@ -229,38 +229,47 @@ exports.applyTemplate = function(req, res) {
     if(!req.param('name')) {
         return res.send("Template name can't be blank!");
     }
+    exports.applyThemeWithName(req.param('name'), function(error){
+        if(error != undefined) {
+            return res.send(error);
+        } else {
+            return res.redirect('/admin/template');
+        }
+    });
+};
 
-    var templatePath = './public/templates/' + req.param('name');
+exports.applyThemeWithName = function(name, callback) {
+    var templatePath = './public/templates/' + name;
 
     fs.readFile(templatePath + '/info.json', function(err, content) {
         if (err) {
             if(err.message.indexOf("No such file or directory") >= 0) {
-                return res.send("Template not found");
+                callback("Template not found");
             } else {
-                return res.send("Unknown error")
+                callback("Unknown error")
             }
         }
 
         fs.readFile(templatePath + '/layout.html', function(err, content) {
-            if (err) return res.send("Layout file not found");
+            if (err) callback("Layout file not found");
             fs.writeFile('./views/layout.ejs', content, function (err) {
                 fs.readFile(templatePath + '/posts/index.html', function(err, content) {
-                    if (err) return res.send("Index not found");
+                    if (err) callback("Index not found");
                     fs.writeFile('./views/posts/index.ejs', content, function (err) {
                         fs.readFile(templatePath + '/posts/show.html', function(err, content) {
-                            if (err) return res.send("Read post file not found");
+                            if (err) callback("Read post file not found");
                             fs.writeFile('./views/posts/show.ejs', content, function (err) {
                                 fs.readFile(templatePath + '/pages/show.html', function(err, content) {
-                                    if (err) return res.send("Read page file not found");
+                                    if (err) callback("Read page file not found");
                                     fs.writeFile('./views/pages/show.ejs', content, function (err) {
                                         fs.readFile(templatePath + '/posts/search.html', function(err, content) {
-                                            if(err) return res.send("Search file not found.");
+                                            if(err) callback("Search file not found.");
                                             fs.writeFile('./views/posts/search.ejs', content, function (err) {
                                                 fs.readFile(templatePath + '/stylesheet.css', function(err, content) {
-                                                    if (err) return res.send("Stylesheet not found");
+                                                    if (err) callback("Stylesheet not found");
                                                     fs.writeFile('./public/stylesheet.css', content, function (err) {
-                                                        config.setBlogConfigKeyValue('current_template', req.param('name'), function() {
-                                                            return res.redirect('/admin/template');  
+                                                        config.setBlogConfigKeyValue('current_template', name, function() {
+                                                            callback();  
                                                         });
                                                     });
                                                 });

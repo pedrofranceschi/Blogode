@@ -38,6 +38,13 @@ app.configure(function() {
     });
     loadPlugins();
     pagesController.updatePagesCache();
+    config.getBlogConfigKeyValue("current_template", function(value){
+        adminController.applyThemeWithName(value, function(error){
+            if(error != undefined) {
+                console.log("Error loading theme.")
+            }
+        })
+    });
 });
 
 var loadedPlugins = {};
