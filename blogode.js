@@ -140,14 +140,12 @@ app.post('/admin/users/save', adminFilter.verifyLogin, adminFilter.verifyUsersPe
 app.get('/admin/users/destroy', adminFilter.verifyLogin, adminFilter.verifyUsersPermission, adminController.destroyUser);
 app.get('/admin/comments', adminFilter.verifyLogin, adminFilter.verifyCommentPermission, adminController.comments);
 app.get('/admin/comments/destroy', adminFilter.verifyLogin, adminFilter.verifyCommentPermission, adminController.destroyComment)
-
 app.get('/admin/pages', adminFilter.verifyLogin, adminFilter.verifyPagePermission, adminController.pages);
 app.get('/admin/pages/new', adminFilter.verifyLogin, adminFilter.verifyPagePermission, adminController.newPage);
 app.get('/admin/pages/:id', adminFilter.verifyLogin, adminFilter.verifyPagePermission, adminController.showPage);
 app.post('/admin/pages/save', adminFilter.verifyLogin, adminFilter.verifyPagePermission, adminController.createPage);
 app.put('/admin/pages/:id', adminFilter.verifyLogin, adminFilter.verifyPagePermission, adminController.updatePage);
 app.get('/admin/pages/destroy/:id', adminFilter.verifyLogin, adminFilter.verifyPagePermission, adminController.destroyPage);
-
 app.get('/admin/logout', adminFilter.verifyLogin, adminController.logout);
 app.get('/admin/not_allowed', adminFilter.verifyLogin, adminController.notAllowed);
 

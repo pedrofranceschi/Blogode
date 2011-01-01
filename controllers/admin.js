@@ -152,25 +152,30 @@ exports.templateIndex = function(req, res) {
 
 exports.getTemplateFileContent = function(req, res) {
     // returns a template file content
-
-    var fileToRead = ""
-    if(req.param('file_type') == 'layout') {
-        fileToRead = "./views/layout.ejs";
-    } else if(req.param('file_type') == 'index') {
-        fileToRead = "./views/posts/index.ejs";
-    } else if(req.param('file_type') == "post_show") {
-        fileToRead = "./views/posts/show.ejs";
-    } else if(req.param('file_type') == "stylesheet") {
-        fileToRead = "./public/stylesheet.css";
-    } else {
-        return res.send("File not found.");
-    }
-
-    fs.readFile(fileToRead, function(err, content) {
-        if (err) throw err;
-        return res.send(content);
+    
+    config.getBlogConfigKeyValue('current_template', function(value) {
+        var fileToRead = ""
+        if(req.param('file_type') == 'layout') {
+            fileToRead = "./public/templates/" + value + "/layout.html";
+        } else if(req.param('file_type') == 'index') {
+            fileToRead = "./public/templates/" + value + "/posts/index.html";
+        } else if(req.param('file_type') == "post_show") {
+            fileToRead = "./public/templates/" + value + "/posts/show.html";
+        } else if(req.param('file_type') == "page_show") {
+            fileToRead = "./public/templates/" + value + "/pages/show.html";
+        } else if(req.param('file_type') == "search_results") {
+            fileToRead = "./public/templates/" + value + "/posts/search.html";
+        } else if(req.param('file_type') == "stylesheet") {
+            fileToRead = "./public/templates/" + value + "/stylesheet.css";
+        } else {
+            return res.send("File not found.");
+        }
+        
+        fs.readFile(fileToRead, function(err, content) {
+            if (err) throw err;
+            return res.send(content);
+        });
     });
-
 };
 
 exports.setTemplateFileContent = function(req, res) {
@@ -193,9 +198,15 @@ exports.setTemplateFileContent = function(req, res) {
         } else if(req.param('file_type') == "post_show") {
             fileToWrite = "./views/posts/show.ejs";
             templateFileToWrite = "./public/templates/" + value + "/posts/show.html"
+        } else if(req.param('file_type') == "page_show") {
+            fileToWrite = "./views/pages/show.ejs";
+            templateFileToWrite = "./public/templates/" + value + "/pages/show.html"
         } else if(req.param('file_type') == "stylesheet") {
             fileToWrite = "./public/stylesheet.css";
             templateFileToWrite = "./public/templates/" + value + "/stylesheet.css"
+        } else if(req.param('file_type') == "search_results"){
+            fileToWrite = "./views/posts/search.ejs";
+            templateFileToWrite = "./public/templates/" + value + "/posts/search.html"
         } else {
             return res.send("File not found.");
         }
@@ -215,7 +226,7 @@ exports.setTemplateFileContent = function(req, res) {
 exports.applyTemplate = function(req, res) {
     // apply a template as the current template
 
-    if(req.param('name') == '' || req.param('name') == undefined) {
+    if(!req.param('name')) {
         return res.send("Template name can't be blank!");
     }
 
@@ -239,12 +250,22 @@ exports.applyTemplate = function(req, res) {
                         fs.readFile(templatePath + '/posts/show.html', function(err, content) {
                             if (err) return res.send("Read post file not found");
                             fs.writeFile('./views/posts/show.ejs', content, function (err) {
-                                fs.readFile(templatePath + '/stylesheet.css', function(err, content) {
-                                    if (err) return res.send("Stylesheet not found");
-                                    fs.writeFile('./public/stylesheet.css', content, function (err) {
-                                        config.setBlogConfigKeyValue('current_template', req.param('name'), function() {
-                                            return res.redirect('/admin/template');  
-                                        })
+                                fs.readFile(templatePath + '/pages/show.html', function(err, content) {
+                                    if (err) return res.send("Read page file not found");
+                                    fs.writeFile('./views/pages/show.ejs', content, function (err) {
+                                        fs.readFile(templatePath + '/posts/search.html', function(err, content) {
+                                            if(err) return res.send("Search file not found.");
+                                            fs.writeFile('./views/posts/search.ejs', content, function (err) {
+                                                fs.readFile(templatePath + '/stylesheet.css', function(err, content) {
+                                                    if (err) return res.send("Stylesheet not found");
+                                                    fs.writeFile('./public/stylesheet.css', content, function (err) {
+                                                        config.setBlogConfigKeyValue('current_template', req.param('name'), function() {
+                                                            return res.redirect('/admin/template');  
+                                                        });
+                                                    });
+                                                });
+                                            });
+                                        });
                                     });
                                 });
                             });
