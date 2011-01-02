@@ -87,36 +87,71 @@ bayeux = new faye.NodeAdapter({
     timeout: 45
 });
 
+// function runPlugin(req, res, next) {
+//     req.session = undefined;
+//     if(req.events == undefined) {
+//         req.events = new Events.EventEmitter();
+//     }
+//     var execOrder = new Array();
+//     Step(
+//         function () {
+//             var counter = 0;
+//             var self = this.parallel();
+//             for(var p in loadedPlugins) {
+//                 console.log('p: ' + sys.inspect(loadedPlugins[p]));
+//                 execOrder[p] = counter;
+//                 var par = this;
+//                 setTimeout(function() {
+//                     loadedPlugins[p].run(req, res, self);
+//                 }, 90);
+//                 counter += 1;
+//             }
+//             counter = 0;
+//         },
+//         function(err) {
+//             req.plugins = {};
+//             for(var p in loadedPlugins) {
+//                 req.plugins[p] = arguments[execOrder[p]];
+//             }
+//             
+//             console.log('arguments: ' + sys.inspect(arguments));
+//             console.log(sys.inspect(req.plugins));
+//             
+//             execOrder = undefined;
+//             req.events.emit('pluginsAreLoaded');
+//             next();
+//         }
+//     );
+//     next(); 
+// }
+
 function runPlugin(req, res, next) {
     req.session = undefined;
     if(req.events == undefined) {
         req.events = new Events.EventEmitter();
     }
+    
     var execOrder = new Array();
-    Step(
-        function () {
-            var counter = 0;
-            for(var p in loadedPlugins) {
-                execOrder[p] = counter;
-                var par = this.parallel();
-                setTimeout(function() {
-                    loadedPlugins[p].run(req, res, par);
-                }, 90);
-                counter += 1;
-            }
-            counter = 0;
-        },
-        function(err) {
-            req.plugins = {};
-            for(var p in loadedPlugins) {
-                req.plugins[p] = arguments[execOrder[p]];
-            }
-            
-            execOrder = undefined;
+    
+    for(p in loadedPlugins) {
+        execOrder.push(p);
+    }
+    
+    req.plugins = {};
+    
+    function executeNextPlugin() {
+        if(execOrder.length == 0) {
             req.events.emit('pluginsAreLoaded');
-            next();
+        } else {
+            loadedPlugins[execOrder[0]].run(req, res, function(response){
+                req.plugins[execOrder[0]] = response;
+                execOrder.splice(0, 1);
+                executeNextPlugin();
+            });
         }
-    );
+    };
+    
+    executeNextPlugin();    
     next();
 }
 

@@ -5,275 +5,192 @@
 // This is public domain software
 
 Number.prototype.pad =
-function (n,p) {
-	var s = '' + this;
-	p = p || '0';
-	while (s.length < n) s = p + s;
+	function (n,p) {
+		var s = '' + this;
+		p = p || '0';
+		while (s.length < n) s = p + s;
 		return s;
-		};
+	};
 
-		Date.prototype.months = [
-				'Janeiro', 'Fevereiro', 'Março', 'Abril', 'Maio', 'Junho', 'Julho',
-				'Agosto', 'Setembro', 'Outubro', 'Novembro', 'Dezembro'
-			];
-			Date.prototype.weekdays = [
-				'Sunday', 'Monday', 'Tuesday', 'Wednesday',
-				'Thursday', 'Friday', 'Saturday'
-				];
-				Date.prototype.dpm = [ 31, 28, 31, 30, 31, 30, 31, 31, 30, 31, 30, 31 ];
+Date.prototype.months = [
+		'January', 'February', 'March', 'April', 'May', 'June', 'July',
+		'August', 'September', 'October', 'November', 'December'
+	];
+Date.prototype.weekdays = [
+		'Sunday', 'Monday', 'Tuesday', 'Wednesday',
+		'Thursday', 'Friday', 'Saturday'
+	];
+Date.prototype.dpm = [ 31, 28, 31, 30, 31, 30, 31, 31, 30, 31, 30, 31 ];
 
-				Date.prototype.strftime_f = {
-					A: function (d) { return d.weekdays[d.getDay()] },
-					a: function (d) { return d.weekdays[d.getDay()].substring(0,3) },
-					B: function (d) { return d.months[d.getMonth()] },
-					b: function (d) { return d.months[d.getMonth()].substring(0,3) },
-					C: function (d) { return Math.floor(d.getFullYear()/100); },
-					c: function (d) { return d.toString() },
-					D: function (d) {
-						return d.strftime_f.m(d) + '/' +
-						d.strftime_f.d(d) + '/' + d.strftime_f.y(d);
-						},
-						d: function (d) { return d.getDate().pad(2,'0') },
-						e: function (d) { return d.getDate().pad(2,' ') },
-						F: function (d) {
-							return d.strftime_f.Y(d) + '-' + d.strftime_f.m(d) + '-' +
-							d.strftime_f.d(d);
-							},
-							H: function (d) { return d.getHours().pad(2,'0') },
-							I: function (d) { return ((d.getHours() % 12 || 12).pad(2)) },
-							j: function (d) {
-								var t = d.getDate();
-								var m = d.getMonth() - 1;
-								if (m > 1) {
-									var y = d.getYear();
-									if (((y % 100) == 0) && ((y % 400) == 0)) ++t;
-									else if ((y % 4) == 0) ++t;
-									}
-									while (m > -1) t += d.dpm[m--];
-										return t.pad(3,'0');
-										},
-										k: function (d) { return d.getHours().pad(2,' ') },
-										l: function (d) { return ((d.getHours() % 12 || 12).pad(2,' ')) },
-										M: function (d) { return d.getMinutes().pad(2,'0') },
-										m: function (d) { return (d.getMonth()+1).pad(2,'0') },
-										n: function (d) { return "\n" },
-										p: function (d) { return (d.getHours() > 11) ? 'PM' : 'AM' },
-										R: function (d) { return d.strftime_f.H(d) + ':' + d.strftime_f.M(d) },
-										r: function (d) {
-											return d.strftime_f.I(d) + ':' + d.strftime_f.M(d) + ':' +
-											d.strftime_f.S(d) + ' ' + d.strftime_f.p(d);
-											},
-											S: function (d) { return d.getSeconds().pad(2,'0') },
-											s: function (d) { return Math.floor(d.getTime()/1000) },
-											T: function (d) {
-												return d.strftime_f.H(d) + ':' + d.strftime_f.M(d) + ':' +
-												d.strftime_f.S(d);
-												},
-												t: function (d) { return "\t" },
-												/*		U: function (d) { return false }, */
-												u: function (d) { return(d.getDay() || 7) },
-												/*		V: function (d) { return false }, */
-												v: function (d) {
-													return d.strftime_f.e(d) + '-' + d.strftime_f.b(d) + '-' +
-													d.strftime_f.Y(d);
-													},
-													/*		W: function (d) { return false }, */
-													w: function (d) { return d.getDay() },
-													X: function (d) { return d.toTimeString() }, // wrong?
-													x: function (d) { return d.toDateString() }, // wrong?
-													Y: function (d) { return d.getFullYear() },
-													y: function (d) { return (d.getYear() % 100).pad(2) },
-													//		Z: function (d) { return d.toString().match(/\((.+)\)$/)[1]; },
-													//		z: function (d) { return d.getTimezoneOffset() }, // wrong
-													//		z: function (d) { return d.toString().match(/\sGMT([+-]\d+)/)[1]; },
-													'%': function (d) { return '%' }
-													};
+Date.prototype.strftime_f = {
+		A: function (d) { return d.weekdays[d.getDay()] },
+		a: function (d) { return d.weekdays[d.getDay()].substring(0,3) },
+		B: function (d) { return d.months[d.getMonth()] },
+		b: function (d) { return d.months[d.getMonth()].substring(0,3) },
+		C: function (d) { return Math.floor(d.getFullYear()/100); },
+		c: function (d) { return d.toString() },
+		D: function (d) {
+				return d.strftime_f.m(d) + '/' +
+					d.strftime_f.d(d) + '/' + d.strftime_f.y(d);
+			},
+		d: function (d) { return d.getDate().pad(2,'0') },
+		e: function (d) { return d.getDate().pad(2,' ') },
+		F: function (d) {
+				return d.strftime_f.Y(d) + '-' + d.strftime_f.m(d) + '-' +
+					d.strftime_f.d(d);
+			},
+		H: function (d) { return d.getHours().pad(2,'0') },
+		I: function (d) { return ((d.getHours() % 12 || 12).pad(2)) },
+		j: function (d) {
+				var t = d.getDate();
+				var m = d.getMonth() - 1;
+				if (m > 1) {
+					var y = d.getYear();
+					if (((y % 100) == 0) && ((y % 400) == 0)) ++t;
+					else if ((y % 4) == 0) ++t;
+				}
+				while (m > -1) t += d.dpm[m--];
+				return t.pad(3,'0');
+			},
+		k: function (d) { return d.getHours().pad(2,' ') },
+		l: function (d) { return ((d.getHours() % 12 || 12).pad(2,' ')) },
+		M: function (d) { return d.getMinutes().pad(2,'0') },
+		m: function (d) { return (d.getMonth()+1).pad(2,'0') },
+		n: function (d) { return "\n" },
+		p: function (d) { return (d.getHours() > 11) ? 'PM' : 'AM' },
+		R: function (d) { return d.strftime_f.H(d) + ':' + d.strftime_f.M(d) },
+		r: function (d) {
+				return d.strftime_f.I(d) + ':' + d.strftime_f.M(d) + ':' +
+					d.strftime_f.S(d) + ' ' + d.strftime_f.p(d);
+			},
+		S: function (d) { return d.getSeconds().pad(2,'0') },
+		s: function (d) { return Math.floor(d.getTime()/1000) },
+		T: function (d) {
+				return d.strftime_f.H(d) + ':' + d.strftime_f.M(d) + ':' +
+					d.strftime_f.S(d);
+			},
+		t: function (d) { return "\t" },
+/*		U: function (d) { return false }, */
+		u: function (d) { return(d.getDay() || 7) },
+/*		V: function (d) { return false }, */
+		v: function (d) {
+				return d.strftime_f.e(d) + '-' + d.strftime_f.b(d) + '-' +
+					d.strftime_f.Y(d);
+			},
+/*		W: function (d) { return false }, */
+		w: function (d) { return d.getDay() },
+		X: function (d) { return d.toTimeString() }, // wrong?
+		x: function (d) { return d.toDateString() }, // wrong?
+		Y: function (d) { return d.getFullYear() },
+		y: function (d) { return (d.getYear() % 100).pad(2) },
+//		Z: function (d) { return d.toString().match(/\((.+)\)$/)[1]; },
+//		z: function (d) { return d.getTimezoneOffset() }, // wrong
+//		z: function (d) { return d.toString().match(/\sGMT([+-]\d+)/)[1]; },
+		'%': function (d) { return '%' }
+	};
 
-													Date.prototype.strftime_f['+'] = Date.prototype.strftime_f.c;
-													Date.prototype.strftime_f.h = Date.prototype.strftime_f.b;
+Date.prototype.strftime_f['+'] = Date.prototype.strftime_f.c;
+Date.prototype.strftime_f.h = Date.prototype.strftime_f.b;
 
-													Date.prototype.strftime =
-													function (fmt) {
-														var r = '';
-														var n = 0;
-														while(n < fmt.length) {
-															var c = fmt.substring(n, n+1);
-															if (c == '%') {
-																c = fmt.substring(++n, n+1);
-																r += (this.strftime_f[c]) ? this.strftime_f[c](this) : c;
-																} else r += c;
-																++n;
-															}
-															return r;
-															};
+Date.prototype.strftime =
+	function (fmt) {
+		var r = '';
+		var n = 0;
+		while(n < fmt.length) {
+			var c = fmt.substring(n, n+1);
+			if (c == '%') {
+				c = fmt.substring(++n, n+1);
+				r += (this.strftime_f[c]) ? this.strftime_f[c](this) : c;
+			} else r += c;
+			++n;
+		}
+		return r;
+	};
 
-															%>
+%>
 
-															<script src="/faye.js"></script>
-															<script>
+<script src="/faye.js"></script>
+<script>
 
-															$(document).ready(function() {
-																$("#submit").click(function() {		
-																	$.ajax({  
-																		type: "POST",  
-																		url: "/<%= post.id %>/comments/save",
-																		data: { author_name: $("input#author_name").val(), author_email: $("input#author_email").val(), comment: $("textarea#comment").val() },
-																		success: function() {
-																		}
-																	});
-																	return false;
-																});
-															});
+$(document).ready(function() {
+	$("#submit").click(function() {		
+			$.ajax({  
+			  type: "POST",  
+			  url: "/<%= post.id %>/comments/save",
+			  data: { author_name: $("input#author_name").val(), author_email: $("input#author_email").val(), comment: $("textarea#comment").val() },
+			  success: function() {
+			  }
+			});
+			return false;
+	});
+});
 
-															var client = new Faye.Client('/faye', {
-																timeout: 120
-															});
+var client = new Faye.Client('/faye', {
+	timeout: 120
+});
 
-															client.subscribe('/<%= post.id %>/comments/bayeux', function(response) {
+client.subscribe('/<%= post.id %>/comments/bayeux', function(response) {
+	// $("#comments_list").append("<div id=\"comment_" + response.id + "\">    " + 
+	// 					   	   "	<h4>" + unescape(response.author_name) + "</h4>   " +
+	// 					       "	<p>" + unescape(response.comment) + "</p>         " +
+	// 					       "</div>");
+	
+	$("#comments").append("<li>" + 
+						 "	<h3>" + unescape(response.author_name) + "</h3>" + 
+						 "  <small>" + response.created_at + "</small>" + 
+						 "	<p>" + unescape(response.comment) + "</p>" + 
+						 "</li>")
 
-																$(".commentlist").append(
-																	"<li class=\"comment byuser comment-author-admin bypostauthor even thread-even depth-1\">" + 
-																	"	<div class=\"comment-container\">" + 
-																    "		<div class=\"avatar\">" + 
-																	"			<img src=\"" + unescape(response.gravatar_url) + "\" class=\"photo avatar avatar-40 photo\" height=\"40\" width=\"40\"/></div>" + 
-																	"			<div class=\"comment-head\">" + 
-																	"				<span class=\"name\">" + unescape(response.author_name) + "</span>" + 
-																	"				<span class=\"date\">" + unescape(response.created_at) + "</span>" + 
-																	"			</div>" + 
-																	"			<div class=\"comment-entry\">" + 
-																	"				<p>" + unescape(response.comment) + "</p>" + 
-																	"			</div>" + 
-																	"		</div>" + 
-																	"	</li> "
-																)
+});
 
-															});
-															
-															function validateEmail(elementValue){  
-															   var emailPattern = /^[a-zA-Z0-9._-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,4}$/;  
-															   return emailPattern.test(elementValue);  
-															 }
-															
-															function performCommentValidation() {
-																if ($('#author_name').val() == "" || $('#author_email').val() == "" || validateEmail($('#author_email').val()) == false || $('#comment').val() == "") {
-																	 $('#commentform input[type=submit]').attr("disabled","disabled");
-																} else {
-																	$('#commentform input[type=submit]').removeAttr("disabled");
-																}
-																setTimeout("performCommentValidation();", 100);
-															}
-															
-															</script>
-															
-															<% 
-															function get_gravatar(email, size) {
+</script>
 
-															    // MD5 (Message-Digest Algorithm) by WebToolkit
-															    // http://www.webtoolkit.info/javascript-md5.html
-
-															    var MD5=function(s){function L(k,d){return(k<<d)|(k>>>(32-d))}function K(G,k){var I,d,F,H,x;F=(G&2147483648);H=(k&2147483648);I=(G&1073741824);d=(k&1073741824);x=(G&1073741823)+(k&1073741823);if(I&d){return(x^2147483648^F^H)}if(I|d){if(x&1073741824){return(x^3221225472^F^H)}else{return(x^1073741824^F^H)}}else{return(x^F^H)}}function r(d,F,k){return(d&F)|((~d)&k)}function q(d,F,k){return(d&k)|(F&(~k))}function p(d,F,k){return(d^F^k)}function n(d,F,k){return(F^(d|(~k)))}function u(G,F,aa,Z,k,H,I){G=K(G,K(K(r(F,aa,Z),k),I));return K(L(G,H),F)}function f(G,F,aa,Z,k,H,I){G=K(G,K(K(q(F,aa,Z),k),I));return K(L(G,H),F)}function D(G,F,aa,Z,k,H,I){G=K(G,K(K(p(F,aa,Z),k),I));return K(L(G,H),F)}function t(G,F,aa,Z,k,H,I){G=K(G,K(K(n(F,aa,Z),k),I));return K(L(G,H),F)}function e(G){var Z;var F=G.length;var x=F+8;var k=(x-(x%64))/64;var I=(k+1)*16;var aa=Array(I-1);var d=0;var H=0;while(H<F){Z=(H-(H%4))/4;d=(H%4)*8;aa[Z]=(aa[Z]|(G.charCodeAt(H)<<d));H++}Z=(H-(H%4))/4;d=(H%4)*8;aa[Z]=aa[Z]|(128<<d);aa[I-2]=F<<3;aa[I-1]=F>>>29;return aa}function B(x){var k="",F="",G,d;for(d=0;d<=3;d++){G=(x>>>(d*8))&255;F="0"+G.toString(16);k=k+F.substr(F.length-2,2)}return k}function J(k){k=k.replace(/\r\n/g,"\n");var d="";for(var F=0;F<k.length;F++){var x=k.charCodeAt(F);if(x<128){d+=String.fromCharCode(x)}else{if((x>127)&&(x<2048)){d+=String.fromCharCode((x>>6)|192);d+=String.fromCharCode((x&63)|128)}else{d+=String.fromCharCode((x>>12)|224);d+=String.fromCharCode(((x>>6)&63)|128);d+=String.fromCharCode((x&63)|128)}}}return d}var C=Array();var P,h,E,v,g,Y,X,W,V;var S=7,Q=12,N=17,M=22;var A=5,z=9,y=14,w=20;var o=4,m=11,l=16,j=23;var U=6,T=10,R=15,O=21;s=J(s);C=e(s);Y=1732584193;X=4023233417;W=2562383102;V=271733878;for(P=0;P<C.length;P+=16){h=Y;E=X;v=W;g=V;Y=u(Y,X,W,V,C[P+0],S,3614090360);V=u(V,Y,X,W,C[P+1],Q,3905402710);W=u(W,V,Y,X,C[P+2],N,606105819);X=u(X,W,V,Y,C[P+3],M,3250441966);Y=u(Y,X,W,V,C[P+4],S,4118548399);V=u(V,Y,X,W,C[P+5],Q,1200080426);W=u(W,V,Y,X,C[P+6],N,2821735955);X=u(X,W,V,Y,C[P+7],M,4249261313);Y=u(Y,X,W,V,C[P+8],S,1770035416);V=u(V,Y,X,W,C[P+9],Q,2336552879);W=u(W,V,Y,X,C[P+10],N,4294925233);X=u(X,W,V,Y,C[P+11],M,2304563134);Y=u(Y,X,W,V,C[P+12],S,1804603682);V=u(V,Y,X,W,C[P+13],Q,4254626195);W=u(W,V,Y,X,C[P+14],N,2792965006);X=u(X,W,V,Y,C[P+15],M,1236535329);Y=f(Y,X,W,V,C[P+1],A,4129170786);V=f(V,Y,X,W,C[P+6],z,3225465664);W=f(W,V,Y,X,C[P+11],y,643717713);X=f(X,W,V,Y,C[P+0],w,3921069994);Y=f(Y,X,W,V,C[P+5],A,3593408605);V=f(V,Y,X,W,C[P+10],z,38016083);W=f(W,V,Y,X,C[P+15],y,3634488961);X=f(X,W,V,Y,C[P+4],w,3889429448);Y=f(Y,X,W,V,C[P+9],A,568446438);V=f(V,Y,X,W,C[P+14],z,3275163606);W=f(W,V,Y,X,C[P+3],y,4107603335);X=f(X,W,V,Y,C[P+8],w,1163531501);Y=f(Y,X,W,V,C[P+13],A,2850285829);V=f(V,Y,X,W,C[P+2],z,4243563512);W=f(W,V,Y,X,C[P+7],y,1735328473);X=f(X,W,V,Y,C[P+12],w,2368359562);Y=D(Y,X,W,V,C[P+5],o,4294588738);V=D(V,Y,X,W,C[P+8],m,2272392833);W=D(W,V,Y,X,C[P+11],l,1839030562);X=D(X,W,V,Y,C[P+14],j,4259657740);Y=D(Y,X,W,V,C[P+1],o,2763975236);V=D(V,Y,X,W,C[P+4],m,1272893353);W=D(W,V,Y,X,C[P+7],l,4139469664);X=D(X,W,V,Y,C[P+10],j,3200236656);Y=D(Y,X,W,V,C[P+13],o,681279174);V=D(V,Y,X,W,C[P+0],m,3936430074);W=D(W,V,Y,X,C[P+3],l,3572445317);X=D(X,W,V,Y,C[P+6],j,76029189);Y=D(Y,X,W,V,C[P+9],o,3654602809);V=D(V,Y,X,W,C[P+12],m,3873151461);W=D(W,V,Y,X,C[P+15],l,530742520);X=D(X,W,V,Y,C[P+2],j,3299628645);Y=t(Y,X,W,V,C[P+0],U,4096336452);V=t(V,Y,X,W,C[P+7],T,1126891415);W=t(W,V,Y,X,C[P+14],R,2878612391);X=t(X,W,V,Y,C[P+5],O,4237533241);Y=t(Y,X,W,V,C[P+12],U,1700485571);V=t(V,Y,X,W,C[P+3],T,2399980690);W=t(W,V,Y,X,C[P+10],R,4293915773);X=t(X,W,V,Y,C[P+1],O,2240044497);Y=t(Y,X,W,V,C[P+8],U,1873313359);V=t(V,Y,X,W,C[P+15],T,4264355552);W=t(W,V,Y,X,C[P+6],R,2734768916);X=t(X,W,V,Y,C[P+13],O,1309151649);Y=t(Y,X,W,V,C[P+4],U,4149444226);V=t(V,Y,X,W,C[P+11],T,3174756917);W=t(W,V,Y,X,C[P+2],R,718787259);X=t(X,W,V,Y,C[P+9],O,3951481745);Y=K(Y,h);X=K(X,E);W=K(W,v);V=K(V,g)}var i=B(Y)+B(X)+B(W)+B(V);return i.toLowerCase()};
-
-															    var size = size || 80;
-
-															    return 'http://www.gravatar.com/avatar/' + MD5(email) + '.jpg?s=' + size;
-															}
-															%>
-															
-															<body onLoad="performCommentValidation();">
-
-<div class="content-wrapper">
-	<div class="content">		        			
-
-		<div class="content-inner post">
-
-			<h2 class="title"><a href="/<%= post.id %>"><%= unescape(post.title) %></a></h2>
-
-			<p class="post-meta">
-				<span class="post-author"><span class="small">por</span> <%= unescape(post.user_name) %></span>
-				<span class="post-date"><span class="small">em</span> <%= unescape(post.created_at.strftime("%d de %B de %Y")) %></span>
-				<!-- <span class="post-category"><span class="small">in</span> <a href="http://demo.woothemes.com/chapters/category/uncategorized/" title="View all posts in Uncategorized" rel="category tag">Uncategorized</a></span> -->
-			</p>
-
-
-
-			<div class="entry">
-				<%- unescape(post.body) %>
-			</div>
-
-
-			<!-- <p class="comments"><span><a href="http://demo.woothemes.com/chapters/2010/11/16/an-example-of-a-post/?h=t#comments-wrap">1 Comments</a> &darr;</span></p> -->
-
-
-		</div>				
+<div class="post">
+	<h2><%= unescape(post.title) %></h2>
+	<div class="post-info">
+		by <%= unescape(post.user_name) %><br/><br/>
+		<p><%= unescape(post.created_at.strftime("%I:%M %p, %m/%d/%Y")) %></p>
+	</div>
+	<div class="post-entry">
+		<p><%- unescape(post.body) %></p>
 	</div>
 </div>
-
-							<div id="comments-wrap" >
-    
-
-<!-- You can start editing here. -->
-
-<div id="comments">
-	
-		<h3>Comments</h3>
-		
+	<!-- You can start editing here. -->
+	<div id="comments">
+		<h2>Comments</h2>
 		<ol class="commentlist">
-	      	
-		<% for (var i=0; i < comments.length; i++) { %>
-		<% if(comments[i] != undefined) { %>
-			
-			<li class="comment byuser comment-author-admin bypostauthor even thread-even depth-1">
-				<div class="comment-container">
-					<div class="avatar">
-						<img src="<%= get_gravatar(unescape(comments[i].author_email)) %>" class="photo avatar avatar-40 photo" height="40" width="40"/>
-					</div>
-					<div class="comment-head">
-						<span class="name"><%= unescape(comments[i].author_name) %></span>           
-						<span class="date"><%= comments[i].created_at %></span>
-					</div>
-					<div class="comment-entry"  id="comment-12">
-						<p><%- unescape(comments[i].comment) %></p>
-					</div>
-				</div>
-			</li>
-			<% } %>  
-			<% } %>  
-			</ol>
-	    	
-
-</div>
-
-<div id="respond">
-
-	<h3>Leave a Reply</h3>
-
-		
-		<form id="commentform">
-		
-			<p>
-				<input type="text" name="author_name" class="txt" id="author_name" value="" size="22" tabindex="1" placeholder="Name (required)"/>
+			<% for (var i=0; i < comments.length; i++) { %>
+				<% if(comments[i] != undefined) { %>
+				<li>
+					<h3><%= unescape(comments[i].author_name) %></h3>
+					<small><%= comments[i].created_at %></small>
+					<p><%- unescape(comments[i].comment) %></p>
+				</li>
+				<br/>
+				<% } %>
+			<% } %>
+		</ol>
+	</div>
+	<hr/>
+	<div id="respond">
+		<h2>Leave a Reply</h2>
+		<form>
+			<p class="commentinput push">
 				<label for="author">Name (required)</label>
+				<input type="text" name="author" id="author_name" value="" size="22" tabindex="1"/>
 			</p>
-
+			<p class="commentinput push">
+				<label for="email">Mail (not published) (required)</label>
+				<input type="text" name="email" id="author_email" value="" size="22" tabindex="2"/>
+			</p>
+			<p class="commenttext">
+				<label for="comment">Your Comment</label>
+				<textarea name="comment" id="comment" rows="10" cols="10" tabindex="4"></textarea>
+			</p>
 			<p>
-				<input type="text" name="author_email" class="txt" id="author_email" value="" size="22" tabindex="2" placeholder="Mail (will not be published)  (Required)"/>
-				<label for="email">Mail (will not be published)  (Required) </label>
+				<button name="submit" type="submit" id="submit" tabindex="5">Submit Comment</button>
+				<button name="reset" type="reset" id="reset" tabindex="6">Reset Form</button>
 			</p>
-
-		<p><textarea name="comment" id="comment" rows="10" cols="50" tabindex="4"></textarea></p>
-
-		<input name="submit" type="submit" id="submit" tabindex="5" value="Submit comment  "/>
-		
-		<br/><br/>
-		
-		<h6>Note: the submit button will be enabled as soon as all the data is completed correctly (valid name, e-mail and comment).</h6>
-		
 		</form>
-
-	
-	<div class="fix"></div>
-
-</div><!-- /#respond -->
-
-</div> <!-- /#comments_wrap -->
-<!-- </div> -->
+	</div>
+	<hr/>

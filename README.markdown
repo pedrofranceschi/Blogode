@@ -18,6 +18,7 @@ TODO
 ----
 * Refactor with Tests
 * Add other databases
+* Check for what plugins we should run for the request
 * Enable/disable plugins
 * Implement categories
 * Make everything RESTful
