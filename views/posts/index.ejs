@@ -13,8 +13,8 @@ Number.prototype.pad =
 	};
 
 Date.prototype.months = [
-		'January', 'February', 'March', 'April', 'May', 'June', 'July',
-		'August', 'September', 'October', 'November', 'December'
+		'Janeiro', 'Fevereiro', 'Março', 'Abril', 'Maio', 'Junho', 'Julho',
+		'Agosto', 'Setembro', 'Outubro', 'Novembro', 'Dezembro'
 	];
 Date.prototype.weekdays = [
 		'Sunday', 'Monday', 'Tuesday', 'Wednesday',
@@ -109,7 +109,7 @@ Date.prototype.strftime =
 
 %>
 
-<% if(posts != undefined) { %>
+<!-- <% if(posts != undefined) { %>
 	<% if(currentPage != 1) { %>
 		<div align="center">
 			<h2>Page <%= currentPage %></h2>
@@ -146,4 +146,76 @@ Date.prototype.strftime =
 			<a href="/page/<%= currentPage+1 %>">Oldest</a>
 		</div>
 	<% } %>
+<% } %> -->
+
+<% for (var i=0; i < posts.length; i++) { %>
+	
+<div class="content-wrapper">
+	<div class="content">		        			
+
+		<div class="content-inner post">
+
+			<h2 class="title"><a href="/<%= posts[i].id %>"><%= unescape(posts[i].title) %></a></h2>
+
+			<p class="post-meta">
+				<span class="post-author"><span class="small">por</span> <%= unescape(posts[i].user_name) %></span>
+				<span class="post-date"><span class="small">em</span> <%= unescape(posts[i].created_at.strftime("%d de %B de %Y")) %></span>
+				<!-- <span class="post-category"><span class="small">in</span> <a href="http://demo.woothemes.com/chapters/category/uncategorized/" title="View all posts in Uncategorized" rel="category tag">Uncategorized</a></span> -->
+			</p>
+
+
+
+			<div class="entry">
+				<%- unescape(posts[i].body) %>
+			</div>
+
+
+			<!-- <p class="comments"><span><a href="http://demo.woothemes.com/chapters/2010/11/16/an-example-of-a-post/?h=t#comments-wrap">1 Comments</a> &darr;</span></p> -->
+
+
+		</div>				
+
+	</div>
+</div>
+<br/><br/><br/><br/>
+
 <% } %>
+
+<div align="center">
+	<ul id="prevnext">
+		
+		<!-- <li id="prev">
+			<a href="/page/<%= currentPage-1 %>">Previous <small>page</small></a>
+		</li>
+		<li id="next">
+			<a href"/page/<%= currentPage+1 %>">Next <small>page</small></a>
+		</li> -->
+		
+		<% if(currentPage < Math.ceil(totalPages)) { %>
+			<li id="prev">
+				<a href="/page/<%= currentPage+1 %>">Previous <small>page</small></a>
+			</li>
+		<% } else { %>
+			<% if(totalPages != -1) { %>
+				<li id="prev">
+					<a href="/page/<%= currentPage+1 %>">Previous <small>page</small></a>
+				</li>
+			<% } else { %>
+				<li id="prev" class="disabled">
+					<a href="/page/<%= currentPage+1 %>">Previous <small>page</small></a>
+				</li>
+			<% } %>
+		<% } %>
+		
+		<% if(currentPage != 1) { %>
+			<li id="next">
+				<a href"/page/<%= currentPage-1 %>">Next <small>page</small></a>
+			</li>
+		<% } else { %>
+			<li id="next" class="disabled">
+				<a href"/page/<%= currentPage-1 %>">Next <small>page</small></a>
+			</li>
+		<% } %>
+
+	</ul>
+</div>
