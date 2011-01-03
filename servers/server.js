@@ -20,11 +20,12 @@ exports.startServer = function(serverPort, clusterServerIp, clusterServerPort, c
 
     if(clusterSocketPort != 0) {
         var message = new Buffer("Some bytes");
+        var server = dgram.createSocket("udp4");
         var client = dgram.createSocket("udp4");
         client.send(message, 0, message.length, clusterServerPort, clusterServerIp.toString());
         client.close();
         
-        var server = dgram.createSocket("udp4");
+        // var server = dgram.createSocket("udp4");
         server.on("message", function (msg, rinfo) {
             if(rinfo.address == clusterServerIp && rinfo.port == clusterSocketPort) {
                 console.log("[CLUSTER INSTANCE] Received commands from cluster server. Executing... ");
