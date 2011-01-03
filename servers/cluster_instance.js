@@ -1,4 +1,4 @@
-exports.startServer = function(serverPort) {
+exports.startServer = function(serverPort, socketPort) {
     var express = require("express")
     var sys = require("sys");
     var fs = require("fs");
@@ -6,15 +6,14 @@ exports.startServer = function(serverPort) {
     var faye = require('faye');
     var Step = require('step');
     var child = require('child_process');
-    var posts = require('./lib/posts');
-    var users = require('./lib/users');
-    var comments = require('./lib/comments');
-    var config = require('./lib/config')
-      , postsController = require('./controllers/posts')
-      , pagesController = require('./controllers/pages')
-      , adminController = require('./controllers/admin')
-      , adminFilter = require('./filters/admin');
-      
+    var posts = require('../lib/posts');
+    var users = require('../lib/users');
+    var comments = require('../lib/comments');
+    var config = require('../lib/config')
+      , postsController = require('../controllers/posts')
+      , pagesController = require('../controllers/pages')
+      , adminController = require('../controllers/admin')
+      , adminFilter = require('../filters/admin');
     
     var app = express.createServer();
     
@@ -32,8 +31,8 @@ exports.startServer = function(serverPort) {
         app.use(express.cookieDecoder());
         app.use(express.session());
         app.set('view engine', 'ejs');
-        app.set('views', __dirname + '/views');
-        app.use(express.staticProvider(__dirname + '/public'));
+        app.set('views', __dirname + '/../views');
+        app.use(express.staticProvider(__dirname + '/../public'));
         app.set('view options', {
             layout: 'layout'
         });
@@ -53,9 +52,12 @@ exports.startServer = function(serverPort) {
     var loadedPlugins = {};
     var pluginConfigVars = {};
     function loadPlugins() {
-        fs.readdir('./plugins/', function(err, files) {
-            for (var i=0; i < files.length; i++) {            
-                var plugin = require('./plugins/' + files[i] + '/plugin.js').initialize();
+        fs.readdir('./plugins', function(err, files) {
+            if(err) {
+                console.log("Error loading plugins: " + sys.inspect(err));
+            }
+            for (var i=0; i < files.length; i++) {
+                var plugin = require('../plugins/' + files[i] + '/plugin.js').initialize();
                 var pluginInfo = plugin.pluginInfos;
                 loadedPlugins[pluginInfo['call_name']] = plugin;
                 pluginConfigVars[pluginInfo['call_name']] = plugin.configVariables;
