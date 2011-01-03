@@ -76,7 +76,12 @@
 		</div><!-- /#main -->
 		
 		<div id="sidebar-right">
-			<div class="adspace-widget widget"><h3>Sobre o autor:</h3>
+			<div class="widget"><h3>Tags</h3>
+				<% for(tag in tags) { %>
+					<li><a href="/tag/<%= tag %>"><%= unescape(tag) %> (<%= tags[tag] %>)</a></li>
+				<% } %>
+			</div>
+			<div class="adspace-widget widget"><h3>Sobre o autor</h3>
 			<div align="justify">
 			Meu nome é Pedro Franceschi. Sou um desenvolvedor mobile e web. Trabalho com o iPhone, Android, Cocoa (para Mac), C e C++, jQuery e AJAX, Ruby, Ruby on Rails, Node.js e outros. Aqui você vai encontrar meus projetos, meu portfolio, minhas apresentações, códigos open-source e tudo o que eu faço.</div>
 			<!-- <a href="http://www.woothemes.com"><img src="http://woothemes.com/ads/200x125.jpg" alt="WooThemes" /></a> -->

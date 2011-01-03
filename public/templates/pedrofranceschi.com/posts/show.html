@@ -190,7 +190,10 @@ function (n,p) {
 
 			<p class="post-meta">
 				<span class="post-author"><span class="small">por</span> <%= unescape(post.user_name) %></span>
-				<span class="post-date"><span class="small">em</span> <%= unescape(post.created_at.strftime("%d de %B de %Y")) %></span>
+				<span class="post-date"><span class="small">em</span> <%= unescape(post.created_at.strftime("%d de %B de %Y")) %></span><br/>
+				<% if(post.tags.length != 0) { %>
+					Tags: <%= post.tags.join(', ') %>
+				<% } %>
 				<!-- <span class="post-category"><span class="small">in</span> <a href="http://demo.woothemes.com/chapters/category/uncategorized/" title="View all posts in Uncategorized" rel="category tag">Uncategorized</a></span> -->
 			</p>
 

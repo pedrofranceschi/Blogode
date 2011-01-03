@@ -5,6 +5,7 @@ var users = require('../lib/users')
 , posts = require('../lib/posts')
 , pages = require('../lib/pages')
 , config = require('../lib/config')
+, tags = require('../lib/tags')
 , comments = require('../lib/comments')
 , importer = require("../lib/importer")
 , pluginsLib = require('../lib/plugins')
@@ -91,9 +92,24 @@ exports.createPost = function(req, res) {
     if(!req.param('title') || !req.param('body')) {
         return res.redirect("/admin/posts/new");
     }
+    
+    var tagsArr = new Array();
+    
+    if(req.param('tags').indexOf(",") >= 0) {
+        var preTags = req.param('tags').split(',');
+        for(var i=0; i < preTags.length; i++) {
+            tagsArr.push(preTags[i].replace(/^\s*|\s*$/g,''))
+        } 
+    } else if(req.param('tags') != "") {
+        tagsArr.push(req.param('tags'));
+    }
+    
     posts.createPost(req.param('title'), req.param('body'), req.session.user_id, 0, function(postId) {
-        postsController.destroyCache();
-        return res.redirect('/admin/posts/' + postId);
+        tags.createTagsForPost(postId, tagsArr, function(){
+            postsController.destroyCache();
+            postsController.updateTagsCache();
+            return res.redirect('/admin/posts/' + postId);
+        });
     });
 };
 
@@ -103,9 +119,26 @@ exports.updatePost = function(req, res) {
     if(!req.param('title') || !req.param('body')) {
         return res.redirect("/admin/posts/new");
     }
+    
+    var tagsArr = new Array();
+    
+    if(req.param('tags').indexOf(",") >= 0) {
+        var preTags = req.param('tags').split(',');
+        for(var i=0; i < preTags.length; i++) {
+            tagsArr.push(preTags[i].replace(/^\s*|\s*$/g,''))
+        } 
+    } else if(req.param('tags') != "") {
+        tagsArr.push(req.param('tags'));
+    }
+    
     posts.updatePost(req.param('id'), req.param('title'), req.param('body'), function() {
-        postsController.destroyCache();
-        return res.redirect('/admin/posts/' + req.param('id'));
+        tags.deletePostTags(req.param('id'), function(){
+            tags.createTagsForPost(req.param('id'), tagsArr, function(){
+                postsController.destroyCache();
+                postsController.updateTagsCache();
+                return res.redirect('/admin/posts/' + req.param('id'));
+            });
+        });
     });
 };
 
@@ -116,8 +149,11 @@ exports.destroyPost = function(req, res) {
         return res.redirect("/admin/posts/");
     }
     posts.destroyPost(req.param('id'), function () {
-        postsController.destroyCache();
-        return res.redirect('/admin/posts/')
+        tags.deletePostTags(req.param('id'), function(){
+            postsController.destroyCache();
+            postsController.updateTagsCache();
+            return res.redirect('/admin/posts/')
+        });
     });
 };
 

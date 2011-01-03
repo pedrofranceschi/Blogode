@@ -1,6 +1,7 @@
 var sys = require('sys')
 var posts = require('../lib/posts')
 , comments = require('../lib/comments')
+, tags = require('../lib/tags')
 , config = require('../lib/config');
 
 var postsPerPage;
@@ -12,21 +13,31 @@ var postsCache;
 
 var self = this;
 
+var tagsCache;
+
+exports.updateTagsCache = function() {
+    tags.getAllTags(function(tags){
+        tagsCache = tags;
+    });
+}
+
+exports.getTagsCache = function() {
+    return tagsCache;
+}
+
 exports.index = function(req, res){
     // return posts list
     
     self._getPostsUsingCache(function(posts_) {
         posts.getPostsIds(function(postsIds){
             req.events.on('pluginsAreLoaded', function() {
-                if(req.plugins != undefined) {
-                    var totalPages = 0;
-                    if(postsIds.length <= postsPerPage) {
-                        totalPages = -1;
-                    }
-                    res.render('posts/index', {
-                        locals: { 'posts': posts_, currentPage:1, 'totalPages': totalPages }
-                    });
+                var totalPages = 0;
+                if(postsIds.length <= postsPerPage) {
+                    totalPages = -1;
                 }
+                res.render('posts/index', {
+                    locals: { 'posts': posts_, currentPage:1, 'totalPages': totalPages }
+                });
             });
         });
     });
@@ -156,5 +167,13 @@ exports.saveComment = function(req, res){
         });
 
         return res.send("OK");
+    });
+}
+
+exports.showTag = function(req, res) {
+    tags.getPostsWithTag(req.param('tag'), function(posts){
+        res.render('posts/index', {
+            locals: { 'posts': posts, currentPage:1, 'totalPages': -1 }
+        });
     });
 }

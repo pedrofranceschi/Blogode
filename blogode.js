@@ -22,7 +22,7 @@ config.getAllBlogConfigKeyValues(function(value) {
     blogConfig = value;
 });
 
-child.exec("limit -n 8192");
+child.exec("ulimit -n 8192");
 
 app.configure(function() {
     app.use(express.logger());
@@ -38,10 +38,12 @@ app.configure(function() {
     });
     loadPlugins();
     pagesController.updatePagesCache();
+    postsController.updateTagsCache();
     config.getBlogConfigKeyValue("current_template", function(value){
         adminController.applyThemeWithName(value, function(error){
             if(error != undefined) {
                 console.log("Error loading theme.")
+                process.exit()
             }
         })
     });
@@ -79,6 +81,9 @@ app.dynamicHelpers({
     },
     pages: function(req, res) {
         return pagesController.getPagesCache();
+    },
+    tags: function(req, res) {
+        return postsController.getTagsCache();
     }
 });
 
@@ -87,49 +92,18 @@ bayeux = new faye.NodeAdapter({
     timeout: 45
 });
 
-// function runPlugin(req, res, next) {
-//     req.session = undefined;
-//     if(req.events == undefined) {
-//         req.events = new Events.EventEmitter();
-//     }
-//     var execOrder = new Array();
-//     Step(
-//         function () {
-//             var counter = 0;
-//             var self = this.parallel();
-//             for(var p in loadedPlugins) {
-//                 console.log('p: ' + sys.inspect(loadedPlugins[p]));
-//                 execOrder[p] = counter;
-//                 var par = this;
-//                 setTimeout(function() {
-//                     loadedPlugins[p].run(req, res, self);
-//                 }, 90);
-//                 counter += 1;
-//             }
-//             counter = 0;
-//         },
-//         function(err) {
-//             req.plugins = {};
-//             for(var p in loadedPlugins) {
-//                 req.plugins[p] = arguments[execOrder[p]];
-//             }
-//             
-//             console.log('arguments: ' + sys.inspect(arguments));
-//             console.log(sys.inspect(req.plugins));
-//             
-//             execOrder = undefined;
-//             req.events.emit('pluginsAreLoaded');
-//             next();
-//         }
-//     );
-//     next(); 
-// }
-
 function runPlugin(req, res, next) {
     req.session = undefined;
     if(req.events == undefined) {
         req.events = new Events.EventEmitter();
     }
+    
+    // console.log('loaded: ' + sys.inspect(loadedPlugins));
+    // if(loadedPlugins == {}) {
+    //     console.log('equal')
+    //     req.events.emit('pluginsAreLoaded');
+    //     next();
+    // }
     
     var execOrder = new Array();
     
@@ -141,7 +115,10 @@ function runPlugin(req, res, next) {
     
     function executeNextPlugin() {
         if(execOrder.length == 0) {
-            req.events.emit('pluginsAreLoaded');
+            setTimeout(function(){
+                req.events.emit('pluginsAreLoaded');
+            }, 10);
+            next();
         } else {
             loadedPlugins[execOrder[0]].run(req, res, function(response){
                 req.plugins[execOrder[0]] = response;
@@ -151,8 +128,7 @@ function runPlugin(req, res, next) {
         }
     };
     
-    executeNextPlugin();    
-    next();
+    executeNextPlugin();
 }
 
 // Admin Routes
@@ -190,16 +166,18 @@ app.put('/admin/pages/:id', adminFilter.verifyLogin, adminFilter.verifyPagePermi
 app.get('/admin/pages/destroy/:id', adminFilter.verifyLogin, adminFilter.verifyPagePermission, adminController.destroyPage);
 app.get('/admin/logout', adminFilter.verifyLogin, adminController.logout);
 app.get('/admin/not_allowed', adminFilter.verifyLogin, adminController.notAllowed);
+app.get('/is_up', function(req, res){ return res.send("ok") });
 
 // Posts routes
 app.get("/", runPlugin, postsController.index);
 app.get("/pages/:name", runPlugin, pagesController.showPage);
 app.get("/page/:id", runPlugin, postsController.showPage);
+app.get("/tag/:tag", runPlugin, postsController.showTag);
 app.get("/feed", postsController.feed);
 app.get("/search", runPlugin, postsController.search);
 app.get("/:id", runPlugin, postsController.show);
 app.post("/:id/comments/save", postsController.saveComment);
 
 bayeux.attach(app);
-app.listen(3000);
+app.listen(parseInt(process.argv[2]));
 console.log("Server on port %s", app.address().port);
