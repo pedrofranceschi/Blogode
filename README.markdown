@@ -21,7 +21,6 @@ TODO
 * Cluster data balance
 * Check for what plugins we should run for the request
 * Enable/disable plugins
-* Implement categories
 * Make everything RESTful
 * Implement other plugin actions
 * Javascript confirmation for destroy actions
