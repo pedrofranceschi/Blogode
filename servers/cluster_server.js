@@ -10,31 +10,81 @@ exports.startClusterServer = function(serverPort) {
         fs.readFile('./servers/cluster_config.json', function(error, data){
             if(error) {
                 throw error;
-            }
+            }         
             
             var parser = JSON.parse(data);
             for(var i=0; i < parser.length; i++) {
-                clusterInstances.push({
-                    'host': parser[i].host,
-                    'port': parser[i].port,
-                    'isAvailable': false
-                })
+                var clusterData = parser[i]
+                clusterData['isAvailable'] = false
+                clusterInstances.push(clusterData)
             }
-            callback();
+            updateClusterStatus(function(){
+                callback();
+            });
         });
     }
     
-    var server = dgram.createSocket("udp4");
-    
-    server.on("message", function (msg, rinfo) {
-        console.log("server got: " + msg + " from " +
-        rinfo.address + ":" + rinfo.port);
-    });
-    
-    server.on("listening", function () {
-        var address = server.address();
-        console.log("[CLUSTER SERVER] Initialized cluster socket on port " + address.port);
-    });
+    var updateClusterStatus = function(callback) {
+        var clustersToVerify = new Array();
+        for(var i=0; i < clusterInstances.length; i++) {
+            clustersToVerify.push(i)
+        }
+        
+        function getClusterStatus() {
+            console.log('LENGTH: ' + sys.inspect(clustersToVerify.length));
+            if(clustersToVerify.length == 0) {
+                console.log('callbacking')
+                callback();
+            } else {
+                var cluster = clusterInstances[clustersToVerify[0]];
+                
+                var serverResponded = false;
+                var server = dgram.createSocket("udp4");
+
+                server.on("message", function (msg, rinfo) {
+                    serverResponded = true;
+                    if(msg.toString("ascii") == "OK") {
+                        clusterInstances[clustersToVerify[0]].isAvailable = true;
+                    }
+                    clustersToVerify.splice(0, 1);
+                    getClusterStatus();
+                }); 
+                server.on("listening", function () {
+                    var client = dgram.createSocket("udp4");
+                    var message = new Buffer("$_is_online_$");
+                    
+                    var port = 6108;
+                    
+                    if(cluster.socket_port != undefined) {
+                        if(!isNaN(parseInt(cluster.socket_port))) {
+                            port = parseInt(cluster.socket_port);
+                        }
+                    }
+                    
+                    client.send(message, 0, message.length, port, cluster.host, function (err, bytes) {
+                        if(err) {
+                            clusterInstances[clustersToVerify[0]].isAvailable = false;
+                            clustersToVerify.splice(0, 1);
+                            getClusterStatus();
+                        } else {
+                            setTimeout(function(){
+                                if(serverResponded == false) {
+                                    clusterInstances[clustersToVerify[0]].isAvailable = false;
+                                    clustersToVerify.splice(0, 1);
+                                    getClusterStatus();
+                                }
+                            }, 500);
+                        }
+                    });
+                    client.close();
+                });
+                server.bind(6109);
+                
+            }
+        }
+        
+        getClusterStatus();
+    }
     
     var requestHandler = function(request, response) {
         console.log(sys.inspect(request));
@@ -83,7 +133,10 @@ exports.startClusterServer = function(serverPort) {
         // }
     };
     
-    server.bind(6108);
+    loadClusters(function(){
+        console.log("Done loading.")
+        console.log('clusterInstances: ' + sys.inspect(clusterInstances));
+    });
     
     var httpServer = http.createServer().addListener('request', requestHandler).listen(serverPort);
     console.log('[CLUSTER SERVER] HTTP proxy server running on port ' + serverPort);

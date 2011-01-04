@@ -19,17 +19,23 @@ exports.startServer = function(serverPort, clusterServerIp, clusterServerPort, c
     // Configure cluster comunication
 
     if(clusterServerIp != 0) {
-        var message = new Buffer("Some bytes");
         var server = dgram.createSocket("udp4");
-        var client = dgram.createSocket("udp4");
-        client.send(message, 0, message.length, clusterServerPort, clusterServerIp.toString());
-        client.close();
+        // var client = dgram.createSocket("udp4");
+        // client.send(message, 0, message.length, clusterServerPort, clusterServerIp.toString());
+        // client.close();
         
         // var server = dgram.createSocket("udp4");
         server.on("message", function (msg, rinfo) {
-            if(rinfo.address == clusterServerIp && rinfo.port == clusterSocketPort) {
+            console.log('rinfo: ' + sys.inspect(rinfo));
+            console.log('clusterServerIp: ' + sys.inspect(clusterServerIp));
+            if((rinfo.address == clusterServerIp || (rinfo.address == "127.0.0.1" && clusterServerIp == "0.0.0.0"))) {
                 console.log("[CLUSTER INSTANCE] Received commands from cluster server. Executing... ");
-                console.log(msg);
+                if(msg.toString("ascii") == "$_is_online_$") {
+                    var client = dgram.createSocket("udp4");
+                    var message = new Buffer("OK");
+                    client.send(message, 0, message.length, 6109, clusterServerIp.toString());
+                    client.close();
+                }
             } else {
                 console.log("[CLUSTER INSTANCE] [ERROR] Command origin is invalid. ");
             }

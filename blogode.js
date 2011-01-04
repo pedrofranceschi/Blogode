@@ -48,7 +48,7 @@ if(args[0] == "server") {
 
     server.startServer(port, clusterAddress, clusterPort, 6108);
 } else if(args[0] == "cluster") {
-    var port = 3000;
+    var port = 8080;
 
     if(!isNaN(parseInt(args[1])) && parseInt(args[1]) > 0) {
         port = parseInt(args[1]);
