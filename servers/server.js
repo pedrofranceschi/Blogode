@@ -18,7 +18,7 @@ exports.startServer = function(serverPort, clusterServerIp, clusterServerPort, c
 
     // Configure cluster comunication
 
-    if(clusterSocketPort != 0) {
+    if(clusterServerIp != 0) {
         var message = new Buffer("Some bytes");
         var server = dgram.createSocket("udp4");
         var client = dgram.createSocket("udp4");
