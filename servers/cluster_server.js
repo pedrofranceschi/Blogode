@@ -65,10 +65,11 @@ exports.startClusterServer = function(serverPort) {
                     }
                     
                     client.send(message, 0, message.length, port, cluster.host, function (err, bytes) {
+						client.close();
                         if(err) {
                             clusterInstances[clustersToVerify[0]].isAvailable = false;
 							server.close();
-							client.close();
+							// client.close();
                             clustersToVerify.splice(0, 1);
                             getClusterStatus();
                         } else {
@@ -76,7 +77,7 @@ exports.startClusterServer = function(serverPort) {
                                 if(serverResponded == false) {
                                     clusterInstances[clustersToVerify[0]].isAvailable = false;
 									server.close();
-									client.close();
+									// client.close();
                                     clustersToVerify.splice(0, 1);
                                     getClusterStatus();
                                 }
