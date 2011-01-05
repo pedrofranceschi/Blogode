@@ -128,7 +128,7 @@ exports.startClusterServer = function(serverPort) {
 			response.end();
 		} else {
 			var index = Math.floor(Math.random()*activeNodes.length);
-			var node = clusterInstances[index];
+			var node = clusterInstances[index]; 
 
 			var proxy_headers = request.headers;
 			var proxy_client = http.createClient(parseInt(node.port, 10), node.host);
