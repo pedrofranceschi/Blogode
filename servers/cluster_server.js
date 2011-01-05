@@ -94,58 +94,76 @@ exports.startClusterServer = function(serverPort) {
     }
 
 	function runNextClusterClientCheck() {
-		// setTimeout(function(){
+		setTimeout(function(){
 			loadClusters(function(){
 				runNextClusterClientCheck();
 			});
-		// }, 5000);
+		}, 5000);
+	}
+	
+	function getAvailableNodes() {
+		var actives = new Array();
+		
+		for(var i=0; i < clusterInstances.length; i++) {
+			if(clusterInstances[i].isAvailable) {
+				actives.push(i);
+			}
+		}
+		
+		return actives;
 	}
     
     var requestHandler = function(request, response) {
         console.log(sys.inspect(request));
-        // if(_active.length == 0) {
-        //  response.writeHead(500, {'Content-Type': 'text/html'});
-        //  response.write('no server active');
-        //  response.end();
-        // } else {
-        //  var index = Math.floor(Math.random()*_active.length);
-        //  var node = _active[index];
-        //     
-        //  var proxy_headers = request.headers;
-        //  var proxy_client = http.createClient(parseInt(node.port, 10), node.host);
-        //  var proxy_request = proxy_client.request(request.method, request.url, proxy_headers);
-        //     
-        //  proxy_request.addListener("response", function (proxy_response) {
-        //      response.writeHeader(proxy_response.statusCode, proxy_response.headers);
-        // 
-        //      proxy_response.addListener("data", function (chunk) {
-        //          response.write(chunk);
-        //      });
-        // 
-        //      proxy_response.addListener("end", function () {
-        //          response.end();
-        //      });
-        //  });
-        //     
-        //  proxy_client.addListener("error", function (error) {
-        //      for(var i=0; i<_cluster.length; i++) {
-        //          if(node.host == _cluster[i].host && node.port == _cluster[i].port) {
-        //              sys.puts('error, deactivating: '+node.host+':'+node.port);
-        //              _cluster[i].active = false;
-        //              _updateActives();
-        //          }
-        //     
-        //          clearTimeout(_checkTimeout[_cluster[i].host + ':' + _cluster[i].port]);
-        //          _clusterNodeCheck(_cluster[i]);
-        //      }
-        //     
-        //      setTimeout(function() {
-        //          _requestHandler(request, response);
-        //      }, 200);
-        //  });
-        //     
-        //  proxy_request.end();        
-        // }
+		var activeNodes = getAvailableNodes();
+		
+		if(activeNodes.length == 0) {
+			
+			// TODO: if there's no node active, the cluster server
+			// should become a client (node) an handle the requests.
+			// The blog needs to be available ALWAYS.
+			
+			response.writeHead(500, {'Content-Type': 'text/html'});
+			response.write('No active server to handle your request.');
+			response.end();
+		} else {
+			var index = Math.floor(Math.random()*activeNodes.length);
+			var node = clusterInstances[index];
+
+			var proxy_headers = request.headers;
+			var proxy_client = http.createClient(parseInt(node.port, 10), node.host);
+			var proxy_request = proxy_client.request(request.method, request.url, proxy_headers);
+
+			proxy_request.addListener("response", function (proxy_response) {
+				response.writeHeader(proxy_response.statusCode, proxy_response.headers);
+
+				proxy_response.addListener("data", function (chunk) {
+					response.write(chunk);
+				});
+
+				proxy_response.addListener("end", function () {
+					response.end();
+				});
+			});
+
+			proxy_client.addListener("error", function (error) {
+				for(var i=0; i<_cluster.length; i++) {
+					if(node.host == _cluster[i].host && node.port == _cluster[i].port) {
+						sys.puts('error, deactivating: '+node.host+':'+node.port);
+						_cluster[i].active = false;
+						_updateActives();
+					}
+
+					clearTimeout(_checkTimeout[_cluster[i].host + ':' + _cluster[i].port]);
+					_clusterNodeCheck(_cluster[i]);
+				}
+
+				setTimeout(function() {
+					_requestHandler(request, response);
+					}, 200);
+			});
+			proxy_request.end();
+		}
     };
     
     loadClusters(function(){
