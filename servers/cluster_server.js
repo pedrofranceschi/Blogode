@@ -10,7 +10,9 @@ exports.startClusterServer = function(serverPort) {
         fs.readFile('./servers/cluster_config.json', function(error, data){
             if(error) {
                 throw error;
-            }         
+            }
+
+			clusterInstances = new Array();
             
             var parser = JSON.parse(data);
             for(var i=0; i < parser.length; i++) {
@@ -19,21 +21,21 @@ exports.startClusterServer = function(serverPort) {
                 clusterInstances.push(clusterData)
             }
             updateClusterStatus(function(){
+				console.log("[CLUSTER SERVER] Done updating cluster clients statuses.")
+				console.log(sys.inspect(clusterInstances));
                 callback();
             });
         });
     }
     
     var updateClusterStatus = function(callback) {
-        var clustersToVerify = new Array();
+		var clustersToVerify = new Array();
         for(var i=0; i < clusterInstances.length; i++) {
             clustersToVerify.push(i)
         }
         
         function getClusterStatus() {
-            console.log('LENGTH: ' + sys.inspect(clustersToVerify.length));
             if(clustersToVerify.length == 0) {
-                console.log('callbacking')
                 callback();
             } else {
                 var cluster = clusterInstances[clustersToVerify[0]];
@@ -46,6 +48,7 @@ exports.startClusterServer = function(serverPort) {
                     if(msg.toString("ascii") == "OK") {
                         clusterInstances[clustersToVerify[0]].isAvailable = true;
                     }
+					server.close();
                     clustersToVerify.splice(0, 1);
                     getClusterStatus();
                 }); 
@@ -62,6 +65,8 @@ exports.startClusterServer = function(serverPort) {
                     }
                     
                     client.send(message, 0, message.length, port, cluster.host, function (err, bytes) {
+						server.close();
+						client.close();
                         if(err) {
                             clusterInstances[clustersToVerify[0]].isAvailable = false;
                             clustersToVerify.splice(0, 1);
@@ -76,7 +81,6 @@ exports.startClusterServer = function(serverPort) {
                             }, 500);
                         }
                     });
-                    client.close();
                 });
                 server.bind(6109);
                 
@@ -85,6 +89,14 @@ exports.startClusterServer = function(serverPort) {
         
         getClusterStatus();
     }
+
+	function runNextClusterClientCheck() {
+		// setTimeout(function(){
+			loadClusters(function(){
+				runNextClusterClientCheck();
+			});
+		// }, 5000);
+	}
     
     var requestHandler = function(request, response) {
         console.log(sys.inspect(request));
@@ -134,8 +146,7 @@ exports.startClusterServer = function(serverPort) {
     };
     
     loadClusters(function(){
-        console.log("Done loading.")
-        console.log('clusterInstances: ' + sys.inspect(clusterInstances));
+		runNextClusterClientCheck();
     });
     
     var httpServer = http.createServer().addListener('request', requestHandler).listen(serverPort);
