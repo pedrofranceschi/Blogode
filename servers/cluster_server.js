@@ -5,7 +5,8 @@ exports.startClusterServer = function(serverPort) {
     var fs = require("fs");
     
     var clusterInstances = new Array();
-    
+	var requestsRunningForNode = new Array();
+
     function loadClusters(callback) {
         fs.readFile('./servers/cluster_config.json', function(error, data){
             if(error) {
@@ -17,12 +18,13 @@ exports.startClusterServer = function(serverPort) {
             var parser = JSON.parse(data);
             for(var i=0; i < parser.length; i++) {
                 var clusterData = parser[i]
+				requestsRunningForNode[i] = 0;
                 clusterData['isAvailable'] = false
+				clusterData['id'] = i
                 clusterInstances.push(clusterData)
             }
             updateClusterStatus(function(){
-				console.log("[CLUSTER SERVER] Done updating cluster clients statuses.")
-				console.log(sys.inspect(clusterInstances));
+				// console.log(sys.inspect(clusterInstances));
                 callback();
             });
         });
@@ -106,16 +108,40 @@ exports.startClusterServer = function(serverPort) {
 		
 		for(var i=0; i < clusterInstances.length; i++) {
 			if(clusterInstances[i].isAvailable) {
-				actives.push(i);
+				actives.push(clusterInstances[i]);
 			}
 		}
 		
 		return actives;
 	}
-    
+	
+	function getNodeToHandleRequest(req, activeNodes) {
+		if(req.url.indexOf("/admin") >= 0) {
+			
+			// Is admin request, so, we need sesssions and
+			// all the requests needs to go to the same node.
+			
+			return activeNodes[0];
+			
+		} else {
+			
+			var sortable = new Array();
+			for (var i=0; i < activeNodes.length; i++) {
+				sortable.push([activeNodes[i], requestsRunningForNode[activeNodes[i].id]])
+			}
+			sortable.sort(function(a, b) {return a[1] - b[1]})
+
+			console.log('sortable: ' + sys.inspect(sortable));
+			
+			return sortable[0][0];
+			
+		}
+	}
+	
     var requestHandler = function(request, response) {
-        console.log(sys.inspect(request));
 		var activeNodes = getAvailableNodes();
+		
+		console.log(sys.inspect(activeNodes));
 		
 		if(activeNodes.length == 0) {
 			
@@ -127,41 +153,48 @@ exports.startClusterServer = function(serverPort) {
 			response.write('No active server to handle your request.');
 			response.end();
 		} else {
-			var index = Math.floor(Math.random()*activeNodes.length);
-			var node = clusterInstances[index]; 
-
+			// var index = Math.floor(Math.random()*activeNodes.length);
+			var node = getNodeToHandleRequest(request, activeNodes);
+			
+			requestsRunningForNode[node.id] += 1;
+			
+			console.log('Using node: ' + sys.inspect(node));
+			
 			var proxy_headers = request.headers;
 			var proxy_client = http.createClient(parseInt(node.port, 10), node.host);
 			var proxy_request = proxy_client.request(request.method, request.url, proxy_headers);
 
 			proxy_request.addListener("response", function (proxy_response) {
-				response.writeHeader(proxy_response.statusCode, proxy_response.headers);
-
+				response.writeHead(proxy_response.statusCode, proxy_response.headers);
+			
 				proxy_response.addListener("data", function (chunk) {
 					response.write(chunk);
 				});
-
+			
 				proxy_response.addListener("end", function () {
+					if(requestsRunningForNode[node.id] > 0) {
+						requestsRunningForNode[node.id] -= 1;
+					}
 					response.end();
 				});
 			});
 
-			proxy_client.addListener("error", function (error) {
-				for(var i=0; i<_cluster.length; i++) {
-					if(node.host == _cluster[i].host && node.port == _cluster[i].port) {
-						sys.puts('error, deactivating: '+node.host+':'+node.port);
-						_cluster[i].active = false;
-						_updateActives();
-					}
-
-					clearTimeout(_checkTimeout[_cluster[i].host + ':' + _cluster[i].port]);
-					_clusterNodeCheck(_cluster[i]);
-				}
-
-				setTimeout(function() {
-					_requestHandler(request, response);
-					}, 200);
-			});
+			// proxy_client.addListener("error", function (error) {
+			// 	for(var i=0; i<_cluster.length; i++) {
+			// 		if(node.host == _cluster[i].host && node.port == _cluster[i].port) {
+			// 			sys.puts('error, deactivating: '+node.host+':'+node.port);
+			// 			_cluster[i].active = false;
+			// 			_updateActives();
+			// 		}
+			// 
+			// 		clearTimeout(_checkTimeout[_cluster[i].host + ':' + _cluster[i].port]);
+			// 		_clusterNodeCheck(_cluster[i]);
+			// 	}
+			// 
+			// 	setTimeout(function() {
+			// 		_requestHandler(request, response);
+			// 		}, 200);
+			// });
 			proxy_request.end();
 		}
     };

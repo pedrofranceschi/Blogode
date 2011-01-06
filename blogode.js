@@ -43,10 +43,22 @@ if(args[0] == "server") {
             process.exit(-1);
         }
     }
+
+	var socketPort = 6108;
+	
+	if(!isNaN(parseInt(args[clusterArg+2]))) {
+		socketPort = parseInt(args[clusterArg+2]); 
+	} else {
+		if(args[clusterArg+2]) {
+			console.log('Invalid cluster server socket port.')
+			process.exit(-1);
+		}
+	}
+	
     
     // exports.startServer = function(serverPort, clusterServerIp, clusterServerPort, clusterSocketPort) {
 
-    server.startServer(port, clusterAddress, clusterPort, 6108);
+    server.startServer(port, clusterAddress, clusterPort, socketPort);
 } else if(args[0] == "cluster") {
     var port = 8080;
 

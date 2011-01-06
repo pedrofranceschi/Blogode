@@ -26,10 +26,8 @@ exports.startServer = function(serverPort, clusterServerIp, clusterServerPort, c
         
         // var server = dgram.createSocket("udp4");
         server.on("message", function (msg, rinfo) {
-            console.log('rinfo: ' + sys.inspect(rinfo));
-            console.log('clusterServerIp: ' + sys.inspect(clusterServerIp));
             if((rinfo.address == clusterServerIp || (rinfo.address == "127.0.0.1" && clusterServerIp == "0.0.0.0"))) {
-                console.log("[CLUSTER INSTANCE] Received commands from cluster server. Executing... ");
+                // console.log("[CLUSTER INSTANCE] Received commands from cluster server. Executing... ");
                 if(msg.toString("ascii") == "$_is_online_$") {
                     var client = dgram.createSocket("udp4");
                     var message = new Buffer("OK");
