@@ -139,6 +139,7 @@ exports.startClusterServer = function(serverPort) {
 	}
 	
     var requestHandler = function(request, response) {
+		console.log('URL: ' + request.method + ' ' + sys.inspect(request.url));
 		var activeNodes = getAvailableNodes();
 		
 		console.log(sys.inspect(activeNodes));
@@ -154,6 +155,17 @@ exports.startClusterServer = function(serverPort) {
 			response.end();
 		} else {
 			// var index = Math.floor(Math.random()*activeNodes.length);
+			
+			var content = "";
+			
+			request.addListener('data', function(chunk)
+			{
+			    content += chunk;
+			});
+
+			request.addListener('end', function()
+			{
+			
 			var node = getNodeToHandleRequest(request, activeNodes);
 			
 			requestsRunningForNode[node.id] += 1;
@@ -162,7 +174,22 @@ exports.startClusterServer = function(serverPort) {
 			
 			var proxy_headers = request.headers;
 			var proxy_client = http.createClient(parseInt(node.port, 10), node.host);
+			
+			console.log('request: ' + sys.inspect(request));
+			
+			if(request.method == "POST" || request.method == "PUT") {
+				// proxy_headers['Content'] = content;
+				proxy_headers['Content-Length'] = content.length;//proxy_headers['content-length'];
+				// proxy_headers['Content-Type'] = 'application/json';
+			}
+			
 			var proxy_request = proxy_client.request(request.method, request.url, proxy_headers);
+			
+			if(request.method == "POST" || request.method == "PUT") {
+				proxy_request.write(content);
+			}
+			
+			console.log('headers: ' + sys.inspect(proxy_headers));
 
 			proxy_request.addListener("response", function (proxy_response) {
 				response.writeHead(proxy_response.statusCode, proxy_response.headers);
@@ -196,6 +223,7 @@ exports.startClusterServer = function(serverPort) {
 			// 		}, 200);
 			// });
 			proxy_request.end();
+			});
 		}
     };
     

@@ -41,6 +41,8 @@ exports.login = function(req, res){
 exports.authenticate = function(req, res){
     // verifies admin credentials
 
+	console.log('params: ' + sys.inspect(req.param))
+
     if(!req.param('username') || !req.param('password')) {
         res.redirect('/admin/login')
     }
