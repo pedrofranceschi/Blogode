@@ -29,6 +29,45 @@ exports.startClusterServer = function(serverPort) {
             });
         });
     }
+
+	function sendCommandToNode(node, command, callback) {
+		var serverResponded = false;
+        var server = dgram.createSocket("udp4");
+
+        server.on("message", function (msg, rinfo) {
+            serverResponded = true;
+			server.close();
+            callback(msg.toString("ascii"));
+        }); 
+        server.on("listening", function () {
+            var client = dgram.createSocket("udp4");
+            var message = new Buffer(command);
+            
+            var port = 6108;
+            
+            if(cluster.socket_port != undefined) {
+                if(!isNaN(parseInt(cluster.socket_port))) {
+                    port = parseInt(cluster.socket_port);
+                }
+            }
+            
+            client.send(message, 0, message.length, port, node.host, function (err, bytes) {
+				client.close();
+                if(err) {
+					server.close();
+					callback(null);
+                } else {
+                    setTimeout(function(){
+                        if(serverResponded == false) {
+							server.close();
+							callback(null);
+                        }
+                    }, 500);
+                }
+            });
+        });
+        server.bind(6109);        
+	}
     
     var updateClusterStatus = function(callback) {
 		var clustersToVerify = new Array();
@@ -142,8 +181,6 @@ exports.startClusterServer = function(serverPort) {
 		console.log('URL: ' + request.method + ' ' + sys.inspect(request.url));
 		var activeNodes = getAvailableNodes();
 		
-		console.log(sys.inspect(activeNodes));
-		
 		if(activeNodes.length == 0) {
 			
 			// TODO: if there's no node active, the cluster server
@@ -154,8 +191,6 @@ exports.startClusterServer = function(serverPort) {
 			response.write('No active server to handle your request.');
 			response.end();
 		} else {
-			// var index = Math.floor(Math.random()*activeNodes.length);
-			
 			var content = "";
 			
 			request.addListener('data', function(chunk)
@@ -174,22 +209,10 @@ exports.startClusterServer = function(serverPort) {
 			
 			var proxy_headers = request.headers;
 			var proxy_client = http.createClient(parseInt(node.port, 10), node.host);
-			
-			console.log('request: ' + sys.inspect(request));
-			
-			if(request.method == "POST" || request.method == "PUT") {
-				// proxy_headers['Content'] = content;
-				proxy_headers['Content-Length'] = content.length;//proxy_headers['content-length'];
-				// proxy_headers['Content-Type'] = 'application/json';
-			}
-			
+			proxy_headers['Content-Length'] = content.length;
 			var proxy_request = proxy_client.request(request.method, request.url, proxy_headers);
-			
-			if(request.method == "POST" || request.method == "PUT") {
-				proxy_request.write(content);
-			}
-			
-			console.log('headers: ' + sys.inspect(proxy_headers));
+
+			proxy_request.write(content);
 
 			proxy_request.addListener("response", function (proxy_response) {
 				response.writeHead(proxy_response.statusCode, proxy_response.headers);
@@ -222,15 +245,34 @@ exports.startClusterServer = function(serverPort) {
 			// 		_requestHandler(request, response);
 			// 		}, 200);
 			// });
+			
 			proxy_request.end();
 			});
 		}
     };
+
+	function initializeNodeCommandsListener(port, callback) {
+		var server = dgram.createSocket("udp4");
+
+        server.on("message", function (msg, rinfo) {
+			var message = msg.toString("ascii");
+			var activeNodes = getAvailableNodes();
+			if(message == "DESTROY_CACHE_POSTS") {
+			}
+        }); 
+        server.on("listening", function () {
+			console.log('[CLUSTER SERVER] Initialized node command listener on port ' + port);
+		});
+        server.bind(port);
+	};
     
     loadClusters(function(){
 		runNextClusterClientCheck();
     });
-    
+
+   	initializeNodeCommandsListener(6110, function(){
+	});
+
     var httpServer = http.createServer().addListener('request', requestHandler).listen(serverPort);
     console.log('[CLUSTER SERVER] HTTP proxy server running on port ' + serverPort);
 }

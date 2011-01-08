@@ -122,7 +122,7 @@ exports.startServer = function(serverPort, clusterServerIp, clusterServerPort, c
         tags: function(req, res) {
             return postsController.getTagsCache();
         }
-    });
+	});
     
     bayeux = new faye.NodeAdapter({
         mount: '/faye',
@@ -130,7 +130,7 @@ exports.startServer = function(serverPort, clusterServerIp, clusterServerPort, c
     });
     
     function runPlugin(req, res, next) {
-        req.session = undefined;
+		req.session = undefined;
         if(req.events == undefined) {
             req.events = new Events.EventEmitter();
         }
