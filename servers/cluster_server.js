@@ -223,11 +223,15 @@ exports.startClusterServer = function(serverPort) {
     };
 
 	function verifyCommandOrigin(rinfo) {
-		sys.inspect(rinfo);
-		return true;
-		for(var i=0; i < clusterInstances.length; i++) {
-			// if(rinfo.)
+		if(rinfo.address == "127.0.0.1") {
+			return true;
 		}
+		for(var i=0; i < clusterInstances.length; i++) {
+			if(rinfo.address == clusterInstances[i].host) {
+				return true;
+			}
+		}
+		return false;
 	}
 
 	function initializeNodeCommandsListener(port, callback) {
