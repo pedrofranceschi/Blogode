@@ -32,41 +32,19 @@ exports.startClusterServer = function(serverPort) {
 
 	function sendCommandToNode(node, command, callback) {
 		var serverResponded = false;
-        var server = dgram.createSocket("udp4");
+        var client = dgram.createSocket("udp4");
 
-        server.on("message", function (msg, rinfo) {
-            serverResponded = true;
-			server.close();
-            callback(msg.toString("ascii"));
-        }); 
-        server.on("listening", function () {
-            var client = dgram.createSocket("udp4");
-            var message = new Buffer(command);
-            
-            var port = 6108;
-            
-            if(cluster.socket_port != undefined) {
-                if(!isNaN(parseInt(cluster.socket_port))) {
-                    port = parseInt(cluster.socket_port);
-                }
-            }
-            
-            client.send(message, 0, message.length, port, node.host, function (err, bytes) {
-				client.close();
-                if(err) {
-					server.close();
-					callback(null);
-                } else {
-                    setTimeout(function(){
-                        if(serverResponded == false) {
-							server.close();
-							callback(null);
-                        }
-                    }, 500);
-                }
-            });
-        });
-        server.bind(6109);        
+		var port = 0;
+		if(node.socket_port) {
+			port = parseInt(node.socket_port);
+		} else {
+			port = 6108;
+		}
+        
+		var message = new Buffer(command);
+
+		client.send(message, 0, message.length, port, node.host);
+		client.close();
 	}
     
     var updateClusterStatus = function(callback) {
@@ -137,6 +115,7 @@ exports.startClusterServer = function(serverPort) {
 	function runNextClusterClientCheck() {
 		setTimeout(function(){
 			loadClusters(function(){
+				console.log('Clusters: ' + sys.inspect(clusterInstances));
 				runNextClusterClientCheck();
 			});
 		}, 5000);
@@ -229,37 +208,43 @@ exports.startClusterServer = function(serverPort) {
 				});
 			});
 
-			// proxy_client.addListener("error", function (error) {
-			// 	for(var i=0; i<_cluster.length; i++) {
-			// 		if(node.host == _cluster[i].host && node.port == _cluster[i].port) {
-			// 			sys.puts('error, deactivating: '+node.host+':'+node.port);
-			// 			_cluster[i].active = false;
-			// 			_updateActives();
-			// 		}
-			// 
-			// 		clearTimeout(_checkTimeout[_cluster[i].host + ':' + _cluster[i].port]);
-			// 		_clusterNodeCheck(_cluster[i]);
-			// 	}
-			// 
-			// 	setTimeout(function() {
-			// 		_requestHandler(request, response);
-			// 		}, 200);
-			// });
+			proxy_client.addListener("error", function (error) {
+				for(var i=0; i < clusterInstances.length; i++) {
+					if(node.host == clusterInstances[i].host && node.port == clusterInstances[i].port) {
+						sys.puts('[CLUSTER SERVER] [ERROR] Deactivating cluster ' + node.host + ':' + node.port);
+						clusterInstances[i].isAvailable = false;
+					}
+				}
+			});
 			
 			proxy_request.end();
 			});
 		}
     };
 
+	function verifyCommandOrigin(rinfo) {
+		sys.inspect(rinfo);
+		return true;
+		for(var i=0; i < clusterInstances.length; i++) {
+			// if(rinfo.)
+		}
+	}
+
 	function initializeNodeCommandsListener(port, callback) {
 		var server = dgram.createSocket("udp4");
 
         server.on("message", function (msg, rinfo) {
-			var message = msg.toString("ascii");
-			var activeNodes = getAvailableNodes();
-			if(message == "DESTROY_CACHE_POSTS") {
+			if(verifyCommandOrigin(rinfo)) {
+				var message = msg.toString("ascii");
+				var activeNodes = getAvailableNodes();
+				if(message.indexOf("DESTROY_CACHE") >= 0) {
+					console.log('[CLUSTER SERVER] Got destroy cache command from node.')
+					for(var i=0; i < activeNodes.length; i++) {
+						sendCommandToNode(activeNodes[i], message, function(){})
+					}
+				}
 			}
-        }); 
+		}); 
         server.on("listening", function () {
 			console.log('[CLUSTER SERVER] Initialized node command listener on port ' + port);
 		});

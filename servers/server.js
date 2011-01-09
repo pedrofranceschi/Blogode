@@ -17,28 +17,37 @@ exports.startServer = function(serverPort, clusterServerIp, clusterServerPort, c
       , adminFilter = require('../filters/admin');
 
     // Configure cluster comunication
+	
+	global.sendCommandToClusterServer = function(command) {
+		var message = new Buffer(command);
+		var client = dgram.createSocket("udp4");
+		client.send(message, 0, message.length, 6110, clusterServerIp);
+		client.close();
+	};
 
     if(clusterServerIp != 0) {
         var server = dgram.createSocket("udp4");
-        // var client = dgram.createSocket("udp4");
-        // client.send(message, 0, message.length, clusterServerPort, clusterServerIp.toString());
-        // client.close();
-        
-        // var server = dgram.createSocket("udp4");
         server.on("message", function (msg, rinfo) {
             if((rinfo.address == clusterServerIp || (rinfo.address == "127.0.0.1" && clusterServerIp == "0.0.0.0"))) {
-                // console.log("[CLUSTER INSTANCE] Received commands from cluster server. Executing... ");
-                if(msg.toString("ascii") == "$_is_online_$") {
+				var message = msg.toString("ascii");
+                if(message == "$_is_online_$") {
                     var client = dgram.createSocket("udp4");
                     var message = new Buffer("OK");
                     client.send(message, 0, message.length, 6109, clusterServerIp.toString());
                     client.close();
-                }
+                } else if(message == "DESTROY_CACHE_POSTS") {
+					console.log('[CLUSTER INSTANCE] Destroying posts cache...')
+					postsController.destroyCache();
+				} else if(message == "DESTROY_CACHE_TAGS") {
+					console.log('[CLUSTER INSTANCE] Destroying tags cache...')
+					postsController.updateTagsCache();
+				} else if(message == "DESTROY_CACHE_PAGES") {
+					console.log('[CLUSTER INSTANCE] Destroying pages cache...')
+					pagesController.updatePagesCache();
+				}
             } else {
                 console.log("[CLUSTER INSTANCE] [ERROR] Command origin is invalid. ");
             }
-            // console.log("server got: " + msg + " from " +
-            // rinfo.address + ":" + rinfo.port);
         });    
         server.on("listening", function () {
             var address = server.address();

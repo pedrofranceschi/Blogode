@@ -108,6 +108,8 @@ exports.createPost = function(req, res) {
     
     posts.createPost(req.param('title'), req.param('body'), req.session.user_id, 0, function(postId) {
         tags.createTagsForPost(postId, tagsArr, function(){
+			global.sendCommandToClusterServer("DESTROY_CACHE_POSTS");
+			global.sendCommandToClusterServer("DESTROY_CACHE_TAGS");
             postsController.destroyCache();
             postsController.updateTagsCache();
             return res.redirect('/admin/posts/' + postId);
@@ -136,6 +138,8 @@ exports.updatePost = function(req, res) {
     posts.updatePost(req.param('id'), req.param('title'), req.param('body'), function() {
         tags.deletePostTags(req.param('id'), function(){
             tags.createTagsForPost(req.param('id'), tagsArr, function(){
+				global.sendCommandToClusterServer("DESTROY_CACHE_POSTS");
+				global.sendCommandToClusterServer("DESTROY_CACHE_TAGS");
                 postsController.destroyCache();
                 postsController.updateTagsCache();
                 return res.redirect('/admin/posts/' + req.param('id'));
@@ -152,6 +156,8 @@ exports.destroyPost = function(req, res) {
     }
     posts.destroyPost(req.param('id'), function () {
         tags.deletePostTags(req.param('id'), function(){
+			global.sendCommandToClusterServer("DESTROY_CACHE_POSTS");
+			global.sendCommandToClusterServer("DESTROY_CACHE_TAGS");
             postsController.destroyCache();
             postsController.updateTagsCache();
             return res.redirect('/admin/posts/')
@@ -454,6 +460,10 @@ exports.saveImport = function(req, res) {
     if(!req.param('xml')) {
         return res.send("Missing parameters.");
     }
+
+	global.sendCommandToClusterServer("DESTROY_CACHE_POSTS");
+	global.sendCommandToClusterServer("DESTROY_CACHE_TAGS");
+	
     postsController.destroyCache();
     importer.importXMLDump(req.param('xml'), function(){
         return res.redirect("/admin/posts");
@@ -508,6 +518,7 @@ exports.createPage = function(req, res) {
         return res.redirect("/admin/pages/new");
     }
     pages.createPage(req.param('title'), req.param('body'), req.session.user_id, 0, function(postId) {
+		global.sendCommandToClusterServer("DESTROY_CACHE_PAGES");
         pagesController.updatePagesCache();
         return res.redirect('/admin/pages/' + postId);
     });
@@ -518,6 +529,7 @@ exports.updatePage = function(req, res) {
         return res.redirect("/admin/pages/new");
     }
     pages.updatePage(req.param('id'), req.param('title'), req.param('body'), function() {
+		global.sendCommandToClusterServer("DESTROY_CACHE_PAGES");
         pagesController.updatePagesCache();
         return res.redirect('/admin/pages/' + req.param('id'));
     });
@@ -529,6 +541,7 @@ exports.destroyPage = function(req, res) {
     }
     pages.destroyPage(req.param('id'), function () {
         pagesController.updatePagesCache();
+		global.sendCommandToClusterServer("DESTROY_CACHE_PAGES");
         return res.redirect('/admin/pages/')
     });
 };

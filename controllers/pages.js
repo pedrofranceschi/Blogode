@@ -6,12 +6,12 @@ var pagesCache;
 
 exports.updatePagesCache = function() {
     pages.getPages(function(pages){
-        pagesCache = pages;
+        global.pagesCache = pages;
     });
 }
 
 exports.getPagesCache = function() {
-    return pagesCache;
+    return global.pagesCache;
 }
 
 // exports.index = function(req, res) {

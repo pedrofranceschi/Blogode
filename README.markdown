@@ -19,6 +19,7 @@ TODO
 * Refactor with Tests
 * Add other databases
 * Cluster data balance
+* Wordpress: import tags too.
 * Check for what plugins we should run for the request
 * Enable/disable plugins
 * Make everything RESTful

@@ -17,12 +17,12 @@ var tagsCache;
 
 exports.updateTagsCache = function() {
     tags.getAllTags(function(tags){
-        tagsCache = tags;
+        global.tagsCache = tags;
     });
 }
 
 exports.getTagsCache = function() {
-    return tagsCache;
+    return global.tagsCache;
 }
 
 exports.index = function(req, res){
@@ -45,18 +45,18 @@ exports.index = function(req, res){
 
 // cache functions
 exports._getPostsUsingCache = function(callback) {
-    if(postsCache == undefined) {
+    if(global.postsCache == undefined) {
         posts.getPosts(0, postsPerPage, function (err, posts_){
-            postsCache = posts_;
+            global.postsCache = posts_;
             callback(posts_);
         });
     } else {
-        callback(postsCache);
+        callback(global.postsCache);
     }
 };
 
 exports.destroyCache = function() {
-    postsCache = undefined;
+    global.postsCache = undefined;
 }
 
 // normal functions
