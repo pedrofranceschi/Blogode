@@ -69,13 +69,15 @@ exports.startServer = function(serverPort, clusterServerIp, clusterServerPort, c
     
     app.configure(function() {
         app.use(express.logger());
-        app.use(express.bodyDecoder());
+        app.use(express.bodyParser());
         app.use(express.methodOverride());
-        app.use(express.cookieDecoder());
-        app.use(express.session());
+        app.use(express.cookieParser());
+        app.use(express.session({
+					secret: '3b6cf4998b1e8de4659f3c304c8dafe9'
+				}));
         app.set('view engine', 'ejs');
         app.set('views', __dirname + '/../views');
-        app.use(express.staticProvider(__dirname + '/../public'));
+        app.use(express.static(__dirname + '/../public'));
         app.set('view options', {
             layout: 'layout'
         });
