@@ -9,11 +9,6 @@ Dependencies
 * npm install ejs
 * npm install faye
 
-Maintainers
------------
-* Pedro Franceschi/pH (@pedroh96) (<http://www.iblogeek.com/>) - Author
-* Emerson Macedo (@emerleite) (<http://codificando.com/>) - Commiter
-
 TODO
 ----
 * Refactor with Tests
